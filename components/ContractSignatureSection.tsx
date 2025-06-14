@@ -38,8 +38,8 @@ const ContractSignatureSection: React.FC<Props> = ({
     // 1. 계약서 정보 조회 및 만료 체크
     const res = await fetch(`/api/contract/${contractId}`)
     const contract = await res.json()
+    // console.log('계약서 만료:', contract.expirationDate)
     if (new Date(contract.expirationDate) < new Date()) {
-      console.log('계약서 만료:', contract.expirationDate)
       setStatus('계약서가 만료되었습니다. 서명할 수 없습니다.')
       return
     }
@@ -55,7 +55,7 @@ const ContractSignatureSection: React.FC<Props> = ({
     const userId = encryptedUserId ? await decryptLocal(encryptedUserId) : ''
     const password = prompt('비밀번호를 입력하세요') || ''
     const privateKeyPem = await loadPrivateKey(userId, password)
-    console.log('서명에 사용할 개인키:', privateKeyPem)
+    // console.log('서명에 사용할 개인키:', privateKeyPem)
     if (!privateKeyPem) {
       setStatus('개인키를 찾을 수 없습니다.')
       return
@@ -69,10 +69,10 @@ const ContractSignatureSection: React.FC<Props> = ({
     const md2 = forge.md.sha256.create()
     md2.update(signImageHash, 'utf8')
     const signImageSignature = forge.util.encode64(privateKey.sign(md2))
-    console.log('계약서 해시값:', contractHash)
-    console.log('손글씨 해시값:', signImageHash)
-    console.log('계약서 해시 서명:', fileSignature)
-    console.log('손글씨 해시 서명:', signImageSignature)
+    // console.log('계약서 해시값:', contractHash)
+    // console.log('손글씨 해시값:', signImageHash)
+    // console.log('계약서 해시 서명:', fileSignature)
+    // console.log('손글씨 해시 서명:', signImageSignature)
     // 서버로 전송
     const patchRes = await fetch(`/api/contract/${contractId}`, {
       method: 'PATCH',
@@ -87,7 +87,7 @@ const ContractSignatureSection: React.FC<Props> = ({
     })
     if (patchRes.ok) {
       setStatus('서명 성공!')
-      console.log('서명 성공! uploaded → signed 상태 변경')
+      // console.log('서명 성공! uploaded → signed 상태 변경')
       sigCanvas.current?.clear()
       setSigner('')
       setSignImageHash('')

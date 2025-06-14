@@ -45,24 +45,24 @@ rl.question('비밀번호를 입력하세요: ', (password) => {
       password,
       backup.userId
     )
-    console.log('\n복호화된 PEM:\n', pem)
+    // console.log('\n복호화된 PEM:\n', pem)
     // forge로 파싱 및 공개키 추출 테스트
     const forge = require('node-forge')
-    console.log('[DEBUG] forge 모듈 로드 성공')
+    // console.log('[DEBUG] forge 모듈 로드 성공')
     const privateKey = forge.pki.privateKeyFromPem(pem)
-    console.log('[DEBUG] privateKey 객체:', privateKey)
+    // console.log('[DEBUG] privateKey 객체:', privateKey)
     if (!privateKey.publicKey) {
-      console.error('[DEBUG] privateKey.publicKey가 없습니다!')
+      // console.error('[DEBUG] privateKey.publicKey가 없습니다!')
       // publicKey 직접 생성
       const publicKey = forge.pki.rsa.setPublicKey(privateKey.n, privateKey.e)
       const publicKeyPem = forge.pki.publicKeyToPem(publicKey)
-      console.log('[DEBUG] publicKeyPem (수동 생성):', publicKeyPem)
+      // console.log('[DEBUG] publicKeyPem (수동 생성):', publicKeyPem)
     } else {
       const publicKeyPem = forge.pki.publicKeyToPem(privateKey.publicKey)
-      console.log('[DEBUG] publicKeyPem:', publicKeyPem)
+      // console.log('[DEBUG] publicKeyPem:', publicKeyPem)
     }
   } catch (e) {
-    console.error('복호화 실패:', e.message)
+    // console.error('복호화 실패:', e.message)
   }
   rl.close()
 })

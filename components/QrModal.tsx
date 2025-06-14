@@ -16,12 +16,12 @@ export default function QrModal({
   contractId,
 }: QrModalProps) {
   useEffect(() => {
-    console.log('[QrModal] contractId:', contractId)
-    console.log('[QrModal] qrCode:', qrCode)
+    // console.log('[QrModal] contractId:', contractId)
+    // console.log('[QrModal] qrCode:', qrCode)
     if (!qrCode) {
-      console.warn(
-        '[QrModal] qrCode가 빈 값입니다. 상위 컴포넌트에서 contracts, signContractId, foundContract, foundContract.signature.qrCode를 콘솔로 찍어 원인을 추적하세요.'
-      )
+      // console.warn(
+      //   '[QrModal] qrCode가 빈 값입니다. 상위 컴포넌트에서 contracts, signContractId, foundContract, foundContract.signature.qrCode를 콘솔로 찍어 원인을 추적하세요.'
+      // )
     }
   }, [contractId, qrCode])
 

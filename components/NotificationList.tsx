@@ -93,64 +93,212 @@ const NotificationList: React.FC<NotificationListProps> = ({
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {propNotifications
             .filter((n) => !hiddenIds.includes(n.id))
-            .map((n) => (
-              <li
-                key={n.id}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setHiddenIds((ids) => [...ids, n.id])
-                  if (!n.read) markAsRead(n.id, n)
-                  onNotificationClick({ ...n, read: true })
-                }}
-                style={{
-                  background: n.read ? '#f7f7f7' : '#e3f0ff',
-                  color: n.read ? '#888' : '#1976d2',
-                  fontWeight: n.read ? 400 : 600,
-                  borderLeft: n.read ? '4px solid #ccc' : '4px solid #1976d2',
-                  padding: '0 16px',
-                  marginBottom: 16,
-                  borderRadius: 16,
-                  cursor: n.read ? 'default' : 'pointer',
-                  boxShadow:
-                    selectedId === n.id
-                      ? '0 2px 8px #1976d233'
-                      : '0 1px 2px #0001',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  position: 'relative',
-                  transition: 'background 0.2s, color 0.2s',
-                  opacity: n.read ? 0.7 : 1,
-                  minWidth: 340,
-                  fontFamily: 'inherit',
-                  fontSize: 17,
-                  height: 60,
-                  overflow: 'hidden',
-                }}
-              >
-                <span
+            .map((n) => {
+              // 시스템 알림(로그인/회원가입)은 메시지 전체 그대로 보여주고, ...처리 없이 줄바꿈 허용, 왼쪽 정렬, 수직 가운데
+              if (n.type === 'system') {
+                return (
+                  <li
+                    key={n.id}
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      try {
+                        await fetch('/api/auth/notifications', {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: n.id }),
+                        })
+                        setHiddenIds((ids) => [...ids, n.id])
+                      } catch {}
+                    }}
+                    style={{
+                      background: n.read ? '#f7f7f7' : '#e3f0ff',
+                      color: n.read ? '#888' : '#1976d2',
+                      fontWeight: n.read ? 400 : 600,
+                      borderLeft: n.read
+                        ? '4px solid #ccc'
+                        : '4px solid #1976d2',
+                      padding: '0 16px',
+                      marginBottom: 16,
+                      borderRadius: 16,
+                      cursor: 'pointer',
+                      boxShadow:
+                        selectedId === n.id
+                          ? '0 2px 8px #1976d233'
+                          : '0 1px 2px #0001',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      position: 'relative',
+                      transition: 'background 0.2s, color 0.2s',
+                      opacity: 1,
+                      minWidth: 340,
+                      fontFamily: 'inherit',
+                      fontSize: 17,
+                      height: 60,
+                      overflow: 'hidden',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: 1,
+                        wordBreak: 'break-all',
+                        verticalAlign: 'middle',
+                        whiteSpace: 'pre-line',
+                        fontWeight: n.read ? 400 : 600,
+                        textAlign: 'left',
+                        display: 'block',
+                        height: '100%',
+                        lineHeight: '60px',
+                      }}
+                      title={n.message}
+                    >
+                      {n.message}
+                    </span>
+                  </li>
+                )
+              }
+              // 계약서 알림(수신 알림)만 파싱
+              const isContractMsg =
+                n.type === 'message' &&
+                n.message.includes('계약서가 도착했습니다.')
+              if (isContractMsg) {
+                const match = n.message.match(
+                  /^(.+?)(\.[\w\d]+)? 계약서가 도착했습니다\.$/
+                )
+                const fileTitle = match ? match[1] : n.message
+                const fileExt = match && match[2] ? match[2] : ''
+                const suffix = '계약서가 도착했습니다.'
+                const maxTitleLength = 14
+                let displayTitle = fileTitle
+                if (fileTitle.length > maxTitleLength) {
+                  displayTitle = fileTitle.slice(0, maxTitleLength) + '...'
+                }
+                // 수신 알림은 클릭 시 삭제하지 않고, onNotificationClick만 호출
+                return (
+                  <li
+                    key={n.id}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onNotificationClick(n)
+                    }}
+                    style={{
+                      background: n.read ? '#f7f7f7' : '#e3f0ff',
+                      color: n.read ? '#888' : '#1976d2',
+                      fontWeight: n.read ? 400 : 600,
+                      borderLeft: n.read
+                        ? '4px solid #ccc'
+                        : '4px solid #1976d2',
+                      padding: '0 16px',
+                      marginBottom: 16,
+                      borderRadius: 16,
+                      cursor: 'pointer',
+                      boxShadow:
+                        selectedId === n.id
+                          ? '0 2px 8px #1976d233'
+                          : '0 1px 2px #0001',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      position: 'relative',
+                      transition: 'background 0.2s, color 0.2s',
+                      opacity: 1,
+                      minWidth: 340,
+                      fontFamily: 'inherit',
+                      fontSize: 17,
+                      height: 60,
+                      overflow: 'hidden',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        height: '100%',
+                        textAlign: 'left',
+                        lineHeight: '60px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: 180,
+                          display: 'inline-block',
+                          verticalAlign: 'middle',
+                        }}
+                        title={fileTitle}
+                      >
+                        {displayTitle}
+                      </span>
+                      <span style={{ flexShrink: 0, marginLeft: 2 }}>
+                        {fileExt} {suffix}
+                      </span>
+                    </span>
+                  </li>
+                )
+              }
+              // 그 외 알림도 왼쪽 정렬, 수직 가운데
+              return (
+                <li
+                  key={n.id}
+                  onClick={async (e) => {
+                    e.stopPropagation()
+                    try {
+                      await fetch('/api/auth/notifications', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: n.id }),
+                      })
+                      setHiddenIds((ids) => [...ids, n.id])
+                    } catch {}
+                  }}
                   style={{
-                    flex: 1,
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
+                    background: n.read ? '#f7f7f7' : '#e3f0ff',
                     color: n.read ? '#888' : '#1976d2',
                     fontWeight: n.read ? 400 : 600,
+                    borderLeft: n.read ? '4px solid #ccc' : '4px solid #1976d2',
+                    padding: '0 16px',
+                    marginBottom: 16,
+                    borderRadius: 16,
+                    cursor: 'pointer',
+                    boxShadow:
+                      selectedId === n.id
+                        ? '0 2px 8px #1976d233'
+                        : '0 1px 2px #0001',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    position: 'relative',
+                    transition: 'background 0.2s, color 0.2s',
+                    opacity: 1,
+                    minWidth: 340,
+                    fontFamily: 'inherit',
                     fontSize: 17,
-                    paddingLeft: 2,
-                    paddingRight: 8,
-                    lineHeight: '1.4',
-                    maxHeight: '2.8em',
-                    wordBreak: 'break-all',
+                    height: 60,
+                    overflow: 'hidden',
+                    textAlign: 'left',
                   }}
-                  title={n.message}
                 >
-                  {n.message}
-                </span>
-              </li>
-            ))}
+                  <span
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      height: '100%',
+                      textAlign: 'left',
+                      lineHeight: '60px',
+                    }}
+                    title={n.message}
+                  >
+                    {n.message}
+                  </span>
+                </li>
+              )
+            })}
         </ul>
       )}
     </div>

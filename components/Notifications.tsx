@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import NotificationList from './NotificationList'
 import ConfirmModal from './ConfirmModal'
@@ -54,7 +54,7 @@ function Notifications({
   const [qrVerified, setQrVerified] = useState(false)
   const router = useRouter()
   const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [confirmMsg, setConfirmMsg] = useState('')
+  const [confirmMsg, setConfirmMsg] = useState<string | ReactNode>('')
   const [confirmContractId, setConfirmContractId] = useState<string | null>(
     null
   )
@@ -73,6 +73,9 @@ function Notifications({
       setShowExpireModal(true)
       return
     }
+    setLocalNotifications((prev) =>
+      prev.filter((n) => n.id !== notification.id)
+    )
     setSelectedId((notification as any)._id)
     setPendingNotification(notification)
     const cid =
@@ -82,15 +85,12 @@ function Notifications({
       null
     setContractId(cid)
     if (notification.type === 'message') {
-      const fileName = notification.message.split(' 계약서가 도착')[0] || ''
-      const senderEmail = notification.senderEmail
-        ? safeDecryptEmailNode(notification.senderEmail)
-        : ''
       setConfirmMsg(
-        `${senderEmail} 님에게 ${fileName} 계약서가 도착했습니다. 계약서를 수신하시겠습니까?`
+        <span style={{ fontSize: 17 }}>계약서를 수신하시겠습니까?</span>
       )
       setConfirmContractId(cid)
       setShowConfirmModal(true)
+      return
     }
   }
 
@@ -123,7 +123,7 @@ function Notifications({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: userEmail,
-          hash: contract.fileHash,
+          hash: contract.security?.originalFileHash,
           contractId,
         }),
       })
@@ -178,13 +178,21 @@ function Notifications({
 
   const handleConfirm = async () => {
     setShowConfirmModal(false)
-    if (confirmContractId) {
+    if (confirmContractId && pendingNotification?.id) {
       await fetch(`/api/contract/${confirmContractId}`)
       await fetch('/api/contract/receive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contractId: confirmContractId, received: true }),
       })
+      await fetch('/api/auth/notifications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: pendingNotification.id }),
+      })
+      if (typeof refreshNotifications === 'function') {
+        await refreshNotifications()
+      }
       if (onMessageAction) {
         onMessageAction(confirmContractId)
         setTimeout(() => onMessageAction(confirmContractId), 500)
@@ -215,7 +223,17 @@ function Notifications({
     <div style={{ display: visible ? undefined : 'none' }}>
       <NotificationList
         notifications={localNotifications
-          .filter((n) => !type || n.type === type)
+          .filter((n) => {
+            if (!type) return true
+            if (type === 'system') {
+              // 시스템 알림은 로그인/회원가입 관련 메시지만
+              return (
+                n.type === 'system' &&
+                (n.message.includes('로그인') || n.message.includes('회원가입'))
+              )
+            }
+            return n.type === type
+          })
           .filter((n) =>
             filter === 'all' ? true : filter === 'unread' ? !n.read : n.read
           )}

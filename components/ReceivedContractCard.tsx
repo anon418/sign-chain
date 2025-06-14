@@ -165,7 +165,7 @@ export default function ReceivedContractCard({
         aria-label="삭제"
         onClick={(e) => {
           e.stopPropagation()
-          console.debug('[DEBUG] 수신자 삭제 버튼 클릭:', contract._id)
+          // console.debug('[DEBUG] 수신자 삭제 버튼 클릭:', contract._id)
           if (onDelete) onDelete(contract)
         }}
       >

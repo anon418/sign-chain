@@ -16,17 +16,17 @@ const getPath = (url: string) => url.split('?')[0]
 
 const authenticateToken =
   (handler: any) => async (req: CustomNextApiRequest, res: NextApiResponse) => {
-    console.log('[MIDDLEWARE] 진입:', req.url, req.method, req.cookies)
+    // console.log('[MIDDLEWARE] 진입:', req.url, req.method, req.cookies)
 
     const path = getPath(req.url || '')
-    console.log(
-      '[MIDDLEWARE] path:',
-      path,
-      'method:',
-      req.method,
-      'token:',
-      req.cookies.token
-    )
+    // console.log(
+    //   '[MIDDLEWARE] path:',
+    //   path,
+    //   'method:',
+    //   req.method,
+    //   'token:',
+    //   req.cookies.token
+    // )
 
     // 쿠키 파싱 추가
     if (!req.cookies) {

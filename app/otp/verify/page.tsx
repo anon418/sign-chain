@@ -24,6 +24,8 @@ function OtpVerifyPageInner() {
   const [touched, setTouched] = useState<{ otp?: boolean; pw?: boolean }>({})
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showBackupAlert, setShowBackupAlert] = useState(false)
+  const [redirectTo, setRedirectTo] = useState<string | null>(null)
   const searchParams = useSearchParams()
   const mode = searchParams.get('mode') // 'register' or 'login'
   const otpInputRef = useRef<HTMLInputElement>(null)
@@ -53,7 +55,7 @@ function OtpVerifyPageInner() {
         body: JSON.stringify({ token: otpCode }),
         credentials: 'include',
       })
-      console.log('RAW response:', response)
+      // console.log('RAW response:', response)
       let data
       try {
         const contentType = response.headers.get('content-type')
@@ -62,9 +64,9 @@ function OtpVerifyPageInner() {
         } else {
           data = { message: await response.text() }
         }
-        console.log('Parsed data:', data)
+        // console.log('Parsed data:', data)
       } catch (parseErr) {
-        console.error('응답 파싱 실패:', parseErr, response)
+        // console.error('응답 파싱 실패:', parseErr, response)
         setError('응답 파싱 실패: ' + parseErr)
         setLoading(false)
         return
@@ -93,10 +95,12 @@ function OtpVerifyPageInner() {
                   forge.pki.publicKeyToPem(publicKeyFromPrivate)
                 const dbPublicKey = data.publicKey
                 const isMatch = publicKeyPemFromPrivate === dbPublicKey
-                router.push(data.redirectTo)
-                return // 리다이렉트 후 함수 종료
+                setRedirectTo(data.redirectTo)
+                setShowBackupAlert(true)
+                setLoading(false)
+                return // 모달 확인 시 이동
               } catch (e) {
-                console.error('[DEBUG] 공개키 비교 중 오류:', e)
+                // console.error('[DEBUG] 공개키 비교 중 오류:', e)
                 setLoading(false)
                 return
               }
@@ -114,32 +118,19 @@ function OtpVerifyPageInner() {
             return
           }
         } else {
-          // 로그인 모드: 로그인 후 userId로 개인키 자동 불러오기 시도
+          // 로그인 모드: 안내 메시지 먼저 띄우고, 확인 시 이동
           try {
             if (data.userId) {
               localStorage.setItem('userId', await encryptLocal(data.userId))
-              // 비밀번호 입력받기 (모달/프롬프트 등으로 UX 개선 가능)
-              const pw = window.prompt(
-                '전자서명/복호화용 비밀번호를 입력하세요 (회원가입 시 설정한 비밀번호)'
-              )
-              if (pw) {
-                const { loadPrivateKey } = await import(
-                  '../../../utils/indexedDB'
-                )
-                const privateKey = await loadPrivateKey(data.userId, pw)
-                if (!privateKey) {
-                  alert(
-                    'IndexedDB에 개인키가 없습니다. 백업에서 복구하거나 회원가입 시 사용한 비밀번호를 확인하세요.'
-                  )
-                } else {
-                  // 개인키가 정상적으로 불러와짐
-                  // 필요시 상태/컨텍스트에 저장 가능
-                }
-              }
+              // 비밀번호 입력 프롬프트 및 개인키 복호화 코드 제거
             }
           } catch (e) {
             // 무시: 개인키가 없거나 복호화 실패
           }
+          setRedirectTo(data.redirectTo)
+          setShowBackupAlert(true)
+          setLoading(false)
+          return
         }
         router.push(data.redirectTo)
         return
@@ -228,6 +219,56 @@ function OtpVerifyPageInner() {
       </form>
       {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
       {mode === 'login' && <></>}
+      {/* 안내 모달 */}
+      {showBackupAlert && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: 8,
+              padding: 32,
+              boxShadow: '0 2px 16px rgba(0,0,0,0.15)',
+              minWidth: 320,
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 22, marginBottom: 16 }}>🔒</div>
+            <div style={{ fontSize: 17, marginBottom: 24 }}>
+              프로필에서 개인키 백업 후 서비스를 이용해주세요.
+            </div>
+            <button
+              style={{
+                background: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                padding: '10px 24px',
+                fontSize: 16,
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                setShowBackupAlert(false)
+                if (redirectTo) router.push(redirectTo)
+              }}
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

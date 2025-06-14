@@ -145,9 +145,9 @@ export async function GET(
         usedPublicKey = recipientUser?.publicKey || ''
       }
     } catch (e) {}
-    // console.log('[DOWNLOAD DEBUG] 사용된 개인키(앞 50):', privateKeyPem.slice(0, 50))
-    // console.log('[DOWNLOAD DEBUG] encAesKeyObj:', encAesKeyObj)
-    // console.log('[DOWNLOAD DEBUG] encAesKeyObj 전체:', JSON.stringify(encAesKeyObj, null, 2))
+    // // console.log('[DOWNLOAD DEBUG] 사용된 개인키(앞 50):', privateKeyPem.slice(0, 50))
+    // // console.log('[DOWNLOAD DEBUG] encAesKeyObj:', encAesKeyObj)
+    // // console.log('[DOWNLOAD DEBUG] encAesKeyObj 전체:', JSON.stringify(encAesKeyObj, null, 2))
     // 복호화 시도
     let aesKeyBytes
     try {
@@ -172,6 +172,22 @@ export async function GET(
         decipher.update(encBuffer),
         decipher.final(),
       ])
+      // === 무결성 검증 추가 ===
+      const fileHash = crypto
+        .createHash('sha256')
+        .update(decrypted)
+        .digest('hex')
+      if (fileHash !== contract.security.originalFileHash) {
+        return NextResponse.json(
+          {
+            message: '파일 무결성 검증 실패',
+            fileHash,
+            expected: contract.security.originalFileHash,
+          },
+          { status: 400 }
+        )
+      }
+      // === 무결성 검증 끝 ===
       let contentType = 'application/octet-stream'
       if (ext === '.pdf') contentType = 'application/pdf'
       else if (ext === '.docx')
@@ -223,7 +239,7 @@ export async function GET(
       }
     }
   } catch (e) {
-    // console.error('[DOWNLOAD API ERROR]', e)
+    // // console.error('[DOWNLOAD API ERROR]', e)
     return NextResponse.json(
       {
         message: '서버 오류',

@@ -72,9 +72,9 @@ const ContractListItem: React.FC<ContractListItemProps> = ({
   const passwordInputRef = React.useRef<HTMLInputElement>(null)
 
   const doDownload = async () => {
-    console.log('[DEBUG][ContractListItem] doDownload 함수 진입')
-    console.log('[DEBUG][ContractListItem] contract:', contract)
-    console.log('[DEBUG][ContractListItem] password:', password)
+    // console.log('[DEBUG][ContractListItem] doDownload 함수 진입')
+    // console.log('[DEBUG][ContractListItem] contract:', contract)
+    // console.log('[DEBUG][ContractListItem] password:', password)
     setDownloading(true)
     setDownloadError('')
     try {
@@ -83,7 +83,7 @@ const ContractListItem: React.FC<ContractListItemProps> = ({
       setPassword('')
     } catch (err: any) {
       setDownloadError(err.message || '다운로드 실패')
-      console.error('[DEBUG][ContractListItem] 다운로드 에러:', err)
+      // console.error('[DEBUG][ContractListItem] 다운로드 에러:', err)
     } finally {
       setDownloading(false)
     }

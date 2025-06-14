@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface ConfirmModalProps {
-  message: string
+  message: string | React.ReactNode
   onConfirm: () => void
   onCancel?: () => void
   integrityMsg?: string
@@ -47,8 +47,8 @@ export default function ConfirmModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ marginBottom: 18 }}>
-          <b>{message}</b>
+        <div style={{ marginBottom: 18, textAlign: 'center' }}>
+          <div style={{ fontWeight: 600 }}>{message}</div>
           {children}
         </div>
         <div

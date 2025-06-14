@@ -16,6 +16,7 @@ export interface ISignatureInfo {
 // 보안 관련 정보
 export interface ISecurityInfo {
   fileHash: string
+  originalFileHash?: string // 추가: 원본 파일 해시
   encryptedAesKeyForUploader: string // JSON: {ciphertext,iv}
   encryptedAesKeyForRecipient: string // JSON: {ciphertext,iv}
 }
@@ -54,6 +55,7 @@ const signatureInfoSchema = new Schema<ISignatureInfo>(
 const securityInfoSchema = new Schema<ISecurityInfo>(
   {
     fileHash: { type: String, required: true },
+    originalFileHash: { type: String },
     encryptedAesKeyForUploader: { type: String, required: true }, // JSON: {ciphertext,iv}
     encryptedAesKeyForRecipient: { type: String, required: true }, // JSON: {ciphertext,iv}
   },

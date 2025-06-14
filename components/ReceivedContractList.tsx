@@ -135,10 +135,10 @@ export default function ReceivedContractList({
         >
           <option value="all">전체 상태</option>
           <option value="signed">서명 완료</option>
-          <option value="pending_signature">서명 대기</option>
-          <option value="uploaded">업로드됨</option>
+          <option value="uploaded">서명 대기</option>
           <option value="expired">만료</option>
         </select>
+        <option value="rejected">거절</option>
       </div>
       {/* 목록 렌더링 */}
       {loading ? (
@@ -245,38 +245,6 @@ export default function ReceivedContractList({
                 >
                   <Page pageNumber={pageNumber} width={550} />
                 </Document>
-                <div
-                  style={{
-                    marginTop: 12,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 12,
-                  }}
-                >
-                  <button
-                    onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
-                    disabled={pageNumber === 1}
-                    aria-label="이전 페이지"
-                  >
-                    ◀
-                  </button>
-                  <span>
-                    {pageNumber} / {numPages}
-                  </span>
-                  <button
-                    onClick={() =>
-                      setPageNumber((p) => Math.min(numPages, p + 1))
-                    }
-                    disabled={pageNumber === numPages}
-                    aria-label="다음 페이지"
-                  >
-                    ▶
-                  </button>
-                </div>
-                <div style={{ color: '#888', fontSize: 13, marginTop: 8 }}>
-                  (←, → 키로 페이지 이동, ESC로 닫기)
-                </div>
               </div>
             )}
             {previewType === 'txt' && (

@@ -37,8 +37,8 @@ export function useNotifications() {
     }
   }, [])
 
-  // console.log('notifications:', notifications)
-  // console.log('unreadCount:', unreadCount)
+  // // console.log('notifications:', notifications)
+  // // console.log('unreadCount:', unreadCount)
 
   return {
     notifications,

@@ -13,17 +13,17 @@ export default function KeyManagement() {
   const handleExportKey = async () => {
     setBackupStatus('')
     if (!password) {
-      setBackupStatus('로그인 비밀번호를 입력하세요.')
+      setBackupStatus('전자서명용 비밀번호를 입력하세요.')
       return
     }
     const encryptedUserId =
       localStorage.getItem('userId') || localStorage.getItem('email')
-    console.log('[KeyManagement] encryptedUserId:', encryptedUserId)
+    // console.log('[KeyManagement] encryptedUserId:', encryptedUserId)
     const userId = encryptedUserId ? await decryptLocal(encryptedUserId) : ''
-    console.log('[KeyManagement] decrypted userId:', userId)
+    // console.log('[KeyManagement] decrypted userId:', userId)
     const db = await getDB()
     const allKeys = await db.getAllKeys(STORE_NAME)
-    console.log('[KeyManagement] IndexedDB allKeys:', allKeys)
+    // console.log('[KeyManagement] IndexedDB allKeys:', allKeys)
     if (!userId) {
       setBackupStatus('userId가 없습니다. (로그인 상태 확인)')
       return
@@ -33,7 +33,7 @@ export default function KeyManagement() {
       return
     }
     const encrypted = await db.get(STORE_NAME, userId)
-    console.log('[KeyManagement] IndexedDB encrypted privateKey:', encrypted)
+    // console.log('[KeyManagement] IndexedDB encrypted privateKey:', encrypted)
     const { exportPrivateKey } = await import('../utils/indexedDB')
     const json = await exportPrivateKey(userId)
     const a = document.createElement('a')
@@ -59,8 +59,19 @@ export default function KeyManagement() {
       const json = evt.target?.result as string
       try {
         const { userId } = JSON.parse(json)
+        const encryptedUserId =
+          localStorage.getItem('userId') || localStorage.getItem('email')
+        const currentUserId = encryptedUserId
+          ? await decryptLocal(encryptedUserId)
+          : ''
         if (!userId) {
           setRestoreStatus('❌ 복구 실패: 파일이 올바르지 않음')
+          return
+        }
+        if (userId !== currentUserId) {
+          setRestoreStatus(
+            '❌ 복구 실패: 이 백업 파일은 현재 계정의 개인키가 아닙니다.'
+          )
           return
         }
         const db = await getDB()
@@ -146,7 +157,7 @@ export default function KeyManagement() {
           />
         </label>
       </div>
-      {restoreStatus === '✅ 개인키가 정상적으로 등록되어있습니다.' ? (
+      {restoreStatus && restoreStatus.startsWith('✅') && (
         <div
           style={{
             maxWidth: 400,
@@ -156,82 +167,56 @@ export default function KeyManagement() {
             borderRadius: 12,
             background: '#fafbfc',
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
+            color: '#009e3c',
+            fontWeight: 600,
+            fontSize: 16,
           }}
         >
-          <div
-            style={{
-              color: 'green',
-              fontWeight: 500,
-              fontSize: 15,
-              padding: '8px 0',
-            }}
-          >
-            ✅ 개인키가 정상적으로 등록되어있습니다.
-          </div>
+          <span style={{ marginRight: 8, color: '#009e3c' }}>☑️</span>
+          {restoreStatus.replace('✅ ', '')}
         </div>
-      ) : backupStatus && backupStatus.includes('다운로드') ? (
-        <div
-          style={{
-            maxWidth: 400,
-            margin: '40px auto',
-            padding: 20,
-            border: '1px solid #eee',
-            borderRadius: 12,
-            background: '#fafbfc',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              color: 'green',
-              fontWeight: 500,
-              fontSize: 15,
-              padding: '8px 0',
-            }}
-          >
-            ✅ 개인키 백업 파일이 다운로드되었습니다.
-          </div>
-        </div>
-      ) : (
-        <>
-          {restoreStatus && (
-            <div
-              style={{
-                marginTop: 8,
-                color: restoreStatus.startsWith('✅') ? 'green' : 'red',
-                display: 'flex',
-                alignItems: 'center',
-                fontWeight: 600,
-                fontSize: 16,
-              }}
-            >
-              {restoreStatus.startsWith('✅') && (
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
-                    background: '#4caf50',
-                    marginRight: 8,
-                  }}
-                >
-                  <FaCheckCircle style={{ color: '#fff', fontSize: 16 }} />
-                </span>
-              )}
-              {restoreStatus}
-            </div>
-          )}
-        </>
       )}
+      {backupStatus && backupStatus.includes('다운로드') && (
+        <div
+          style={{
+            maxWidth: 400,
+            margin: '40px auto',
+            padding: 20,
+            border: '1px solid #eee',
+            borderRadius: 12,
+            background: '#fafbfc',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'green',
+            fontWeight: 500,
+            fontSize: 15,
+          }}
+        >
+          <span style={{ marginRight: 8 }}>☑️</span>개인키 백업 파일이
+          다운로드되었습니다.
+        </div>
+      )}
+      {/* 실패/기타 메시지 */}
+      {(restoreStatus && !restoreStatus.startsWith('✅')) ||
+      (backupStatus && !backupStatus.includes('다운로드')) ? (
+        <div
+          style={{
+            marginTop: 8,
+            color: 'red',
+            fontWeight: 600,
+            fontSize: 16,
+          }}
+        >
+          {restoreStatus && !restoreStatus.startsWith('✅')
+            ? restoreStatus
+            : backupStatus}
+        </div>
+      ) : null}
     </div>
   )
 }

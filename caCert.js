@@ -38,7 +38,7 @@ cert.sign(
     'rootPrivateKey.pem',
     'application/x-pem-file'
   )
-  console.log('CA 인증서 및 개인키 S3 업로드 완료')
+  // console.log('CA 인증서 및 개인키 S3 업로드 완료')
 })()
 
 module.exports = {

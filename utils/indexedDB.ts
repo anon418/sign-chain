@@ -50,18 +50,26 @@ export async function loadPrivateKey(
 ): Promise<string | undefined> {
   const db = await getDB()
   const encrypted = await db.get(STORE_NAME, userId)
-  if (!encrypted) return undefined
+  if (!encrypted) {
+    console.error('[loadPrivateKey] IndexedDB에 암호화된 개인키 없음:', userId)
+    return undefined
+  }
   const key = await deriveKey(password, userId)
-  const decrypted = await aesDecrypt(encrypted, key)
-  console.log(
-    '[DEBUG] loadPrivateKey - 복호화된 privateKey (앞 50):',
-    decrypted.slice(0, 50)
-  )
-  console.log(
-    '[DEBUG] loadPrivateKey - 복호화된 privateKey 길이:',
-    decrypted.length
-  )
-  return decrypted
+  try {
+    const decrypted = await aesDecrypt(encrypted, key)
+    console.log(
+      '[DEBUG] loadPrivateKey - 복호화된 privateKey (앞 50):',
+      decrypted.slice(0, 50)
+    )
+    console.log(
+      '[DEBUG] loadPrivateKey - 복호화된 privateKey 길이:',
+      decrypted.length
+    )
+    return decrypted
+  } catch (e) {
+    console.error('[loadPrivateKey] 복호화 실패:', e)
+    return undefined
+  }
 }
 
 // 개인키 삭제

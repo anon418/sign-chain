@@ -9,6 +9,7 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import { ContractStatus } from '../../../../constants/contractStatus'
 import mongoose from 'mongoose'
+import { downloadFromS3 } from '../../../../lib/s3'
 
 const UPLOAD_DIR = 'uploads'
 
@@ -71,14 +72,14 @@ export async function GET(
     )
   }
   const filePath = contract.filePath
-  const safeFilePath = contract.filePath.replace(/^[/\\]+/, '')
-  const resolvedPath = path.resolve(UPLOAD_DIR, safeFilePath)
+  // S3에서 파일 다운로드
   let fileBuffer
   try {
-    fileBuffer = readFileSync(resolvedPath)
+    fileBuffer = await downloadFromS3(filePath)
   } catch (e) {
+    // console.error('[GET][ERROR] S3 파일 읽기 실패:', e)
     return NextResponse.json(
-      { message: '파일을 읽을 수 없습니다.' },
+      { message: '파일을 읽을 수 없습니다.', error: String(e) },
       { status: 500 }
     )
   }
@@ -116,6 +117,8 @@ export async function GET(
       readFileSync(filePath.replace(/\.enc$/, '-metadata.json'), 'utf8')
     )
   } catch {}
+  // console.log('[DEBUG][GET] contract:', contract)
+  // console.log('[DEBUG][GET] contract.security:', contract.security)
   return NextResponse.json({
     ...contract.toObject(),
     encryptedFileBase64: fileBase64,
@@ -208,6 +211,12 @@ export async function PATCH(
     signatureImageHashSignature &&
     signer
   ) {
+    if (contractHash !== contract.security?.originalFileHash) {
+      return NextResponse.json(
+        { message: '무결성 검증 실패: 해시 불일치' },
+        { status: 400 }
+      )
+    }
     if (!contract.signature) contract.signature = { signed: false }
     contract.signature.signature = signature
     contract.signature.signatureImageDigital = signatureImage

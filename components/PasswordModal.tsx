@@ -50,7 +50,7 @@ export default function PasswordModal({
             setPw(e.target.value)
             setLocalError('')
             // 디버깅: 입력값 실시간 출력 (개발용, 배포 시 삭제)
-            console.log('[DEBUG] PasswordModal input:', e.target.value)
+            // console.log('[DEBUG] PasswordModal input:', e.target.value)
           }}
           style={{
             width: '100%',
@@ -79,14 +79,14 @@ export default function PasswordModal({
             if (!pw || pw.length < 6) {
               setLocalError('비밀번호를 올바르게 입력하세요.')
               // 디버깅: 비밀번호 길이 체크 실패
-              console.log(
-                '[DEBUG] PasswordModal submit: too short or empty',
-                pw
-              )
+              // console.log(
+              //   '[DEBUG] PasswordModal submit: too short or empty',
+              //   pw
+              // )
               return
             }
             // 디버깅: 제출 시 비밀번호 값
-            console.log('[DEBUG] PasswordModal submit:', pw)
+            // console.log('[DEBUG] PasswordModal submit:', pw)
             onSubmit(pw)
           }}
         >

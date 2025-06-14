@@ -161,20 +161,25 @@ const LoginPage = () => {
       </form>
       <div
         style={{
-          marginTop: 32,
+          textAlign: 'center',
           color: '#555',
           fontSize: 15,
-          textAlign: 'center',
+          marginTop: 24,
         }}
       >
         계정이 없으신가요?{' '}
         <a
           href="/register"
-          style={{ color: '#003cff', textDecoration: 'underline' }}
+          style={{
+            color: '#1976d2',
+            fontWeight: 600,
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          }}
         >
           회원가입
-        </a>{' '}
-        하거나 로그인해주세요.
+        </a>
+        을 진행해주세요.
       </div>
       {showCertModal && (
         <ConfirmModal

@@ -53,13 +53,16 @@ const ContractSignFlow = ({
         .then((res) => res.json())
         .then((data) => {
           console.log(
-            '[해시 검증] 서버 fileHash:',
-            data.security?.fileHash,
-            '프론트 contract.fileHash:',
-            contract.security?.fileHash
+            '[해시 검증] 서버 originalFileHash:',
+            data.security?.originalFileHash,
+            '프론트 contract.originalFileHash:',
+            contract.security?.originalFileHash
           )
           setSignLoading(false)
-          if (data.security?.fileHash === contract.security?.fileHash) {
+          if (
+            data.security?.originalFileHash ===
+            contract.security?.originalFileHash
+          ) {
             setSignMsg('무결성 검증 완료! 다음 단계로 이동합니다.')
             setTimeout(() => {
               setSignStep('qr')
@@ -97,20 +100,20 @@ const ContractSignFlow = ({
   const debugLog = async (password: string) => {
     try {
       const encryptedUserId = localStorage.getItem('userId')
-      console.log('[DEBUG] encryptedUserId:', encryptedUserId)
+      // console.log('[DEBUG] encryptedUserId:', encryptedUserId)
       const userId = encryptedUserId ? await decryptLocal(encryptedUserId) : ''
-      console.log('[DEBUG] decrypted userId:', userId)
+      // console.log('[DEBUG] decrypted userId:', userId)
       const db = await (await import('../utils/indexedDB')).getDB()
       const allKeys = await db.getAllKeys('privateKeys')
-      console.log('[DEBUG] IndexedDB allKeys:', allKeys)
+      // console.log('[DEBUG] IndexedDB allKeys:', allKeys)
       const encrypted = await db.get('privateKeys', userId)
-      console.log('[DEBUG] IndexedDB encrypted privateKey:', encrypted)
+      // console.log('[DEBUG] IndexedDB encrypted privateKey:', encrypted)
       const { loadPrivateKey } = await import('../utils/indexedDB')
       const privateKeyPem = await loadPrivateKey(userId, password)
-      console.log('[DEBUG] loadPrivateKey result:', privateKeyPem)
+      // console.log('[DEBUG] loadPrivateKey result:', privateKeyPem)
       return { userId, privateKeyPem, encrypted }
     } catch (e) {
-      console.error('[DEBUG] debugLog error:', e)
+      // console.error('[DEBUG] debugLog error:', e)
       return {}
     }
   }
@@ -148,14 +151,14 @@ const ContractSignFlow = ({
             )
             setSignStatus('')
             setShowPasswordModal(true)
-            console.log(
-              '[DEBUG] handleSignWithPassword: privateKeyPem is undefined/null'
-            )
+            // console.log(
+            //   '[DEBUG] handleSignWithPassword: privateKeyPem is undefined/null'
+            // )
             return
           }
           const privateKey = forge.pki.privateKeyFromPem(privateKeyPem)
           const md = forge.md.sha256.create()
-          md.update(contract.security?.fileHash, 'utf8')
+          md.update(contract.security?.originalFileHash, 'utf8')
           const signature = forge.util.encode64(privateKey.sign(md))
           setPendingSignature(signature)
           setPendingSignaturePw(password)
@@ -170,7 +173,7 @@ const ContractSignFlow = ({
     } catch (e: any) {
       setSignStatus('전자서명 실패: ' + (e?.message || String(e)))
       setSignStep('idle')
-      console.log('[DEBUG] handleSignWithPassword: exception', e)
+      // console.log('[DEBUG] handleSignWithPassword: exception', e)
     }
   }
 
@@ -191,14 +194,14 @@ const ContractSignFlow = ({
         privateKey.sign(md)
       )
       // 디버깅: 서버로 보낼 데이터
-      console.log('[DEBUG] PATCH body:', {
-        fileSignature: pendingSignature,
-        contractHash: contract.security?.fileHash,
-        signatureImage: sigData,
-        signatureImageHash: hash,
-        signatureImageHashSignature,
-        signer: contract?.signer || '',
-      })
+      // console.log('[DEBUG] PATCH body:', {
+      //   fileSignature: pendingSignature,
+      //   contractHash: contract.security?.originalFileHash,
+      //   signatureImage: sigData,
+      //   signatureImageHash: hash,
+      //   signatureImageHashSignature,
+      //   signer: contract?.signer || '',
+      // })
       // 서버로 전자서명+손글씨서명 전송
       const encryptedUserId = localStorage.getItem('userId') || ''
       const userId = encryptedUserId ? await decryptLocal(encryptedUserId) : ''
@@ -206,7 +209,7 @@ const ContractSignFlow = ({
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contractHash: contract.security?.fileHash,
+          contractHash: contract.security?.originalFileHash,
           signature: pendingSignature,
           signatureImage: sigData,
           signatureImageHash: hash,
@@ -218,7 +221,7 @@ const ContractSignFlow = ({
       if (!signRes.ok) {
         setHandStatus('손글씨 서명 실패: ' + (signData.message || '서버 오류'))
         setSignStep('idle')
-        console.log('[DEBUG] handleHandSign: signRes not ok', signData)
+        // console.log('[DEBUG] handleHandSign: signRes not ok', signData)
         return
       }
       setHandStatus('서명이 성공적으로 완료되었습니다')
@@ -230,7 +233,7 @@ const ContractSignFlow = ({
     } catch (e: any) {
       setHandStatus('손글씨 서명 실패: ' + (e?.message || String(e)))
       setSignStep('idle')
-      console.log('[DEBUG] handleHandSign: exception', e)
+      // console.log('[DEBUG] handleHandSign: exception', e)
     }
   }
 

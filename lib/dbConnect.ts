@@ -45,7 +45,7 @@ const connectDB =
       cached.conn = await cached.promise
       return handler(req, res)
     } catch (error) {
-      console.error('[DB] MongoDB 연결 실패:', error)
+      // console.error('[DB] MongoDB 연결 실패:', error)
       return res.status(500).json({ message: '서버 오류' })
     }
   }

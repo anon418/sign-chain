@@ -18,11 +18,6 @@ import iconv from 'iconv-lite'
 import chardet from 'chardet'
 import { uploadToS3, downloadFromS3 } from '../../../../lib/s3'
 
-const uploadDir = '/tmp'
-
-const previewDir = path.join(process.cwd(), 'previews')
-if (!fs.existsSync(previewDir)) fs.mkdirSync(previewDir, { recursive: true })
-
 const allowedExtensions = ['.pdf', '.docx', '.txt']
 
 // 파일 업로드 용량 제한: 20MB (Vercel 호환)
@@ -228,6 +223,12 @@ export async function POST(req: NextRequest) {
     .createHash('sha256')
     .update(encFileBuffer as unknown as crypto.BinaryLike)
     .digest('hex')
+  // === 원본 파일 해시 추가 ===
+  const originalHash = crypto
+    .createHash('sha256')
+    .update(originalFileBuffer as unknown as crypto.BinaryLike)
+    .digest('hex')
+  // ===
   // 업로더/수신자 공개키로 AES 키 암호화
   const uploaderPublicKey = forge.pki.publicKeyFromPem(
     uploader.publicKey?.replace(/\\n/g, '\n')
@@ -327,6 +328,7 @@ export async function POST(req: NextRequest) {
     received: false,
     security: {
       fileHash: encHash,
+      originalFileHash: originalHash,
       encryptedAesKeyForUploader,
       encryptedAesKeyForRecipient,
       recipientPublicKeyHash,
@@ -334,7 +336,10 @@ export async function POST(req: NextRequest) {
     signature: { qrCode },
     // deletedBy 등은 필요시 추가
   })
-  console.log('[UPLOAD DEBUG] createdContract._id:', createdContract._id)
+  console.log(
+    '[UPLOAD DEBUG] createdContract:',
+    JSON.stringify(createdContract, null, 2)
+  )
   // Find previous log for this contract
   const lastLog = await Log.findOne({ contractId: createdContract._id }).sort({
     _id: -1,
@@ -371,7 +376,7 @@ export async function POST(req: NextRequest) {
       try {
         await uploadToS3(Buffer.from(pdfBytes), previewKey, 'application/pdf')
       } catch (err) {
-        console.error('미리보기 파일 생성 실패:', err)
+        // console.error('미리보기 파일 생성 실패:', err)
       }
     } else if (originalExt === '.txt') {
       // TXT: 앞 1000자만 평문으로 저장 (인코딩 감지 후 UTF-8 변환, fallback 포함)
@@ -408,7 +413,7 @@ export async function POST(req: NextRequest) {
       try {
         await uploadToS3(Buffer.from(text, 'utf-8'), previewKey, 'text/plain')
       } catch (err) {
-        console.error('미리보기 파일 생성 실패:', err)
+        // console.error('미리보기 파일 생성 실패:', err)
       }
     }
     // S3에는 항상 업로드 성공했다고 가정 (실패시 previewError에 기록)
@@ -417,10 +422,10 @@ export async function POST(req: NextRequest) {
     previewError = String(e)
   }
 
-  // 계약 업로드 후 수신자에게 알림 생성 (제목 포함)
+  // 계약 업로드 후 수신자에게 알림 생성 (파일명만 포함)
   await Notification.create({
     recipientEmail: encryptedRecipientEmail,
-    message: `${filename} 계약서가 도착했습니다. 계약서를 수신하시겠습니까?`,
+    message: `${filename} 계약서가 도착했습니다.`,
     type: 'message',
     timestamp: new Date(),
     read: false,

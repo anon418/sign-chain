@@ -18,11 +18,11 @@ const VerifyQR: React.FC<{
         .then((result: { data: string }) => {
           setScannedData(result.data)
           setMessage('QR 코드가 인식되었습니다. 아래 확인 버튼을 눌러주세요.')
-          console.log('[QR 인식 성공]', result.data)
+          // console.log('[QR 인식 성공]', result.data)
         })
         .catch((err) => {
           setMessage('QR 이미지 인식 실패')
-          console.log('[QR 인식 실패]', err)
+          // console.log('[QR 인식 실패]', err)
         })
     }
   }
@@ -32,21 +32,21 @@ const VerifyQR: React.FC<{
       setMessage(
         'QR 코드가 인식되지 않았습니다. 이미지를 다시 업로드해 주세요.'
       )
-      console.log('[QR 확인 실패] 스캔 데이터 없음')
+      // console.log('[QR 확인 실패] 스캔 데이터 없음')
       return
     }
     try {
-      console.log(
-        '[QR 확인 요청] contractId:',
-        contractId,
-        'qrCode:',
-        scannedData.trim()
-      )
+      // console.log(
+      //   '[QR 확인 요청] contractId:',
+      //   contractId,
+      //   'qrCode:',
+      //   scannedData.trim()
+      // )
       const res = await axios.post('/api/Qr/verify-qr', {
         contractId,
         qrCode: scannedData.trim(),
       })
-      console.log('[QR 확인 응답]', res.data)
+      // console.log('[QR 확인 응답]', res.data)
       if (res.data.success) {
         setMessage('인증 성공! 서명 단계로 이동합니다...')
         if (onSuccess) onSuccess(scannedData)
@@ -54,11 +54,11 @@ const VerifyQR: React.FC<{
         setMessage(
           res.data.message || 'QR 코드 인증 실패: 올바른 QR 코드가 아닙니다.'
         )
-        console.log('[QR 인증 실패]', res.data)
+        // console.log('[QR 인증 실패]', res.data)
       }
     } catch (e: any) {
       setMessage(e?.response?.data?.message || 'QR 코드 인증 실패: 서버 오류')
-      console.log('[QR 인증 예외]', e)
+      // console.log('[QR 인증 예외]', e)
     }
   }
 

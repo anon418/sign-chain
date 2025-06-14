@@ -191,6 +191,14 @@ const RegisterPage = () => {
       )}
       <div
         style={{
+          marginTop: 16,
+          color: '#1976d2',
+          fontSize: 15,
+          textAlign: 'center',
+        }}
+      ></div>
+      <div
+        style={{
           marginTop: 32,
           color: '#555',
           fontSize: 15,
