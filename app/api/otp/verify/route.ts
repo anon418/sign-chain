@@ -9,8 +9,11 @@ import { encryptEmailNode, decryptEmailNode } from '../../../../utils/crypto'
 import { getCookieOptions } from '../../../../utils/cookieUtils'
 
 // CA 키/인증서 로드 (환경변수에서만)
-const caPrivateKeyPem: string | undefined = process.env.CA_PRIVATE_KEY
-const caCertPem: string | undefined = process.env.CA_CERT
+const caPrivateKeyPem: string | undefined = process.env.CA_PRIVATE_KEY?.replace(
+  /\\n/g,
+  '\n'
+)
+const caCertPem: string | undefined = process.env.CA_CERT?.replace(/\\n/g, '\n')
 
 // console.log('[ROUTE] /api/otp/verify/route.ts 파일 로드됨')
 

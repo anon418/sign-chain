@@ -232,14 +232,18 @@ export async function POST(req: NextRequest) {
     .update(encFileBuffer as unknown as crypto.BinaryLike)
     .digest('hex')
   // 업로더/수신자 공개키로 AES 키 암호화
-  const uploaderPublicKey = forge.pki.publicKeyFromPem(uploader.publicKey)
+  const uploaderPublicKey = forge.pki.publicKeyFromPem(
+    uploader.publicKey?.replace(/\\n/g, '\n')
+  )
   if (!recipient.publicKey) {
     return NextResponse.json(
       { message: '수신자 공개키가 없습니다.' },
       { status: 400 }
     )
   }
-  const recipientPublicKey = forge.pki.publicKeyFromPem(recipient.publicKey)
+  const recipientPublicKey = forge.pki.publicKeyFromPem(
+    recipient.publicKey?.replace(/\\n/g, '\n')
+  )
   // 더 안전한 변환 방식 사용
   const aesKeyBinary = forge.util.binary.raw.encode(aesKey)
   console.log(

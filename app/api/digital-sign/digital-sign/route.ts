@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
-    const privateKeyPem = process.env.PRIVATE_KEY
+    const privateKeyPem = process.env.PRIVATE_KEY?.replace(/\\n/g, '\n')
     if (!privateKeyPem) {
       return NextResponse.json(
         { message: '서버에 개인키가 설정되어 있지 않습니다.' },
