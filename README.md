@@ -44,13 +44,17 @@ contractId: A
 
 - `/app` - 페이지 및 API 라우트
 - `/components` - UI 컴포넌트 (예: `ContractPreviewModal`, `NotificationList`)
-- `/models` - MongoDB 모델
+- `/models` - MongoDB 모델 정의
 - `/utils` - 암호화, IndexedDB 등 유틸
+- `/contexts - 전역 상태 관리(React Context) 컴포넌트
+- `/hooks — 재사용 가능한 커스텀 React Hook
+- `/lib — DB 연결, API 연동 등 서버/공통 라이브러리
+- `/constants — 상수 정의
 - `/public` - 정적 파일
 
 ## 🔑 기술 스택
 
-- **Frontend**: Next.js, React, TypeScript, WebCrypto, IndexedDB
+- **Frontend**: Next.js, React, TypeScript, node-forge, IndexedDB
 - **Backend**: Node.js, MongoDB, Mongoose
 - **Security**: AES-GCM, PBKDF2, RSA, X.509, Google OTP, bcrypt
 - **기타**: JWT, Refresh Token, 해시체인 로그, Vercel 배포
