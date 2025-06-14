@@ -4,6 +4,7 @@ import User from '../../../../models/User'
 import Notification from '../../../../models/Notification'
 import jwt from 'jsonwebtoken'
 import Contract from '../../../../models/Contract'
+import { makeSetCookieString } from '../../../../utils/cookieUtils'
 
 export async function DELETE(req: NextRequest) {
   await connectDBForApp()
@@ -57,11 +58,11 @@ export async function DELETE(req: NextRequest) {
     })
     response.headers.set(
       'Set-Cookie',
-      'token=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax;'
+      makeSetCookieString('token', '', { clear: true })
     )
     response.headers.append(
       'Set-Cookie',
-      'refresh_token=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax;'
+      makeSetCookieString('refresh_token', '', { clear: true })
     )
     return response
   } catch (error) {

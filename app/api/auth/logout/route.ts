@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { makeSetCookieString } from '../../../../utils/cookieUtils'
 
 export async function POST() {
   const response = NextResponse.json({ message: '로그아웃 완료' })
   response.headers.set(
     'Set-Cookie',
-    'token=; Path=/; HttpOnly; Max-Age=0; SameSite=Strict;'
+    makeSetCookieString('token', '', { clear: true })
   )
   return response
 }

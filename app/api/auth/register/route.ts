@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import TempUser from '../../../../models/TempUser'
 import { encryptEmailNode, decryptEmailNode } from '../../../../utils/crypto'
 import { randomUUID } from 'crypto'
+import { makeSetCookieString } from '../../../../utils/cookieUtils'
 
 export async function POST(req: NextRequest) {
   await connectDBForApp()
@@ -83,15 +84,11 @@ export async function POST(req: NextRequest) {
     )
     response.headers.append(
       'Set-Cookie',
-      `token=${token}; HttpOnly; Path=/; Max-Age=3600; Secure=${
-        isProduction ? 'true' : 'false'
-      }; SameSite=${isProduction ? 'Strict' : 'Lax'}`
+      makeSetCookieString('token', token, { maxAge: 3600 })
     )
     response.headers.append(
       'Set-Cookie',
-      `refresh_token=${refreshToken}; HttpOnly; Path=/; Max-Age=1209600; Secure=${
-        isProduction ? 'true' : 'false'
-      }; SameSite=${isProduction ? 'Strict' : 'Lax'}`
+      makeSetCookieString('refresh_token', refreshToken, { maxAge: 1209600 })
     )
     return response
   } catch (error: any) {

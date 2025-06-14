@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import { connectDBForApp } from '../../../lib/dbConnect'
 import User from '../../../models/User'
 import { randomUUID } from 'crypto'
+import { makeSetCookieString } from '../../../utils/cookieUtils'
 
 const ACCESS_TOKEN_EXPIRES_IN = '1h'
 const REFRESH_TOKEN_EXPIRES_IN = '14d'
@@ -72,15 +73,11 @@ export async function POST(req: NextRequest) {
   const response = NextResponse.json({ message: 'Access token refreshed' })
   response.headers.append(
     'Set-Cookie',
-    `token=${accessToken}; HttpOnly; Path=/; Max-Age=3600; Secure=${
-      isProduction ? 'true' : 'false'
-    }; SameSite=${isProduction ? 'Strict' : 'Lax'}`
+    makeSetCookieString('token', accessToken, { maxAge: 3600 })
   )
   response.headers.append(
     'Set-Cookie',
-    `refresh_token=${newRefreshToken}; HttpOnly; Path=/; Max-Age=1209600; Secure=${
-      isProduction ? 'true' : 'false'
-    }; SameSite=${isProduction ? 'Strict' : 'Lax'}`
+    makeSetCookieString('refresh_token', newRefreshToken, { maxAge: 1209600 })
   )
   return response
 }

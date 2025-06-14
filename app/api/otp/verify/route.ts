@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import TempUser from '../../../../models/TempUser'
 import forge from 'node-forge'
 import { encryptEmailNode, decryptEmailNode } from '../../../../utils/crypto'
+import { getCookieOptions } from '../../../../utils/cookieUtils'
 
 // CA 키/인증서 로드 (환경변수에서만)
 const caPrivateKeyPem: string | undefined = process.env.CA_PRIVATE_KEY
@@ -220,13 +221,11 @@ export async function POST(req: NextRequest) {
           userId: newUser._id,
           redirectTo: '/contract',
         })
-        response.cookies.set('token', newToken, {
-          httpOnly: true,
-          path: '/',
-          maxAge: 3600,
-          secure: isProduction,
-          sameSite: isProduction ? 'strict' : 'lax',
-        })
+        response.cookies.set(
+          'token',
+          newToken,
+          getCookieOptions({ maxAge: 3600 })
+        )
         return response
       } else {
         // console.log('[VERIFY] OTP 인증 실패:', token)
@@ -276,13 +275,11 @@ export async function POST(req: NextRequest) {
           userId: user._id,
           redirectTo: '/contract',
         })
-        response.cookies.set('token', newToken, {
-          httpOnly: true,
-          path: '/',
-          maxAge: 3600,
-          secure: isProduction,
-          sameSite: isProduction ? 'strict' : 'lax',
-        })
+        response.cookies.set(
+          'token',
+          newToken,
+          getCookieOptions({ maxAge: 3600 })
+        )
         return response
       } else {
         // console.log('[VERIFY] OTP 인증 실패(User):', token)
