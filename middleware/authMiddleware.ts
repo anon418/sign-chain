@@ -91,7 +91,10 @@ export default authenticateToken
 
 export function middleware(request: NextRequest) {
   const response = NextResponse.next()
-  response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  response.headers.set(
+    'Access-Control-Allow-Origin',
+    process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  )
   response.headers.set('Access-Control-Allow-Credentials', 'true')
   response.headers.set(
     'Access-Control-Allow-Methods',
