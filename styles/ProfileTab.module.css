@@ -1,0 +1,22 @@
+.profile-tab {
+  background: #fff;
+  color: #2086c4;
+  border: 1.5px solid #2086c4;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 20px;
+  margin-right: 8px;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  cursor: pointer;
+}
+.profile-tab:last-child {
+  margin-right: 0;
+}
+.profile-tab.selected {
+  background: #2086c4;
+  color: #fff;
+  border-color: #2086c4;
+}
+.profile-tab:hover {
+  background: #eaf1ff;
+}

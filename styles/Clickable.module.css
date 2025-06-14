@@ -1,0 +1,8 @@
+.clickable {
+  cursor: pointer;
+  transition: box-shadow 0.18s, background 0.18s;
+}
+.clickable:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.03);
+}

@@ -1,0 +1,131 @@
+@import 'tailwindcss/preflight';
+@import 'tailwindcss/utilities';
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --font-primary: 'Roboto', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: #f4f8fb;
+  font-family: 'Segoe UI', 'Pretendard', 'Apple SD Gothic Neo', Arial,
+    sans-serif;
+  color: #222;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #222;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
+
+button {
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+  transition: background 0.2s;
+}
+button:hover {
+  background: #217dbb;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  outline: none;
+  transition: border 0.2s;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border: 1.5px solid #3498db;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(52, 152, 219, 0.08);
+  padding: 32px 24px;
+  margin: 24px auto;
+  max-width: 480px;
+}
+
+.navbar {
+  background: #fff;
+  border-bottom: 1px solid #e0e6ed;
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.1rem;
+}
+
+.navbar .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 16px 8px;
+    max-width: 98vw;
+  }
+  .navbar {
+    padding: 0 8px;
+    font-size: 1rem;
+  }
+}
+
+.btn-primary {
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  min-width: 120px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #217dbb;
+  box-shadow: 0 4px 16px rgba(52, 152, 219, 0.18);
+}
+
+/* Additional styles can be added here based on the design requirements */
