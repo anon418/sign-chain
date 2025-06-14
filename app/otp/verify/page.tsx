@@ -113,9 +113,34 @@ function OtpVerifyPageInner() {
             setLoading(false)
             return
           }
+        } else {
+          // 로그인 모드: 로그인 후 userId로 개인키 자동 불러오기 시도
+          try {
+            if (data.userId) {
+              localStorage.setItem('userId', await encryptLocal(data.userId))
+              // 비밀번호 입력받기 (모달/프롬프트 등으로 UX 개선 가능)
+              const pw = window.prompt(
+                '전자서명/복호화용 비밀번호를 입력하세요 (회원가입 시 설정한 비밀번호)'
+              )
+              if (pw) {
+                const { loadPrivateKey } = await import(
+                  '../../../utils/indexedDB'
+                )
+                const privateKey = await loadPrivateKey(data.userId, pw)
+                if (!privateKey) {
+                  alert(
+                    'IndexedDB에 개인키가 없습니다. 백업에서 복구하거나 회원가입 시 사용한 비밀번호를 확인하세요.'
+                  )
+                } else {
+                  // 개인키가 정상적으로 불러와짐
+                  // 필요시 상태/컨텍스트에 저장 가능
+                }
+              }
+            }
+          } catch (e) {
+            // 무시: 개인키가 없거나 복호화 실패
+          }
         }
-        // (기존) window.location.href = data.redirectTo; 는 위에서 처리됨
-        // 로그인 모드 등에서는 바로 router.push 사용
         router.push(data.redirectTo)
         return
       } else {

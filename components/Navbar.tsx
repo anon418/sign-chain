@@ -325,6 +325,20 @@ export default function Navbar({
             <button
               className={styles.clickable}
               onClick={async () => {
+                // 로그아웃 시 현재 userId의 개인키만 삭제
+                const encryptedUserId = localStorage.getItem('userId')
+                let userId = ''
+                if (encryptedUserId) {
+                  try {
+                    const { decryptLocal } = await import('../utils/crypto')
+                    userId = await decryptLocal(encryptedUserId)
+                  } catch {}
+                }
+                if (userId) {
+                  await deletePrivateKey(userId)
+                }
+                localStorage.clear()
+                sessionStorage.clear()
                 await fetch('/api/auth/logout', { method: 'POST' })
                 window.location.href = '/'
               }}

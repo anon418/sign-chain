@@ -89,7 +89,30 @@ export default function IntroductionPage() {
           <li>Refresh Token은 httpOnly 쿠키, jti로 재사용 방지</li>
           <li>쿠키는 SameSite=Strict, HttpOnly, Secure 속성 적용</li>
           <li>환경변수는 .env 관리, NEXT_PUBLIC_ 접두사로 프론트 접근</li>
+          <li>
+            <b>모든 파일(원본, 미리보기, 인증서 등)은 AWS S3에 저장/관리</b>
+          </li>
         </ul>
+        <div style={{ marginTop: 12 }}>
+          <b>개인키 백업/복구</b>
+          <ul>
+            <li>
+              개인키는 브라우저 IndexedDB에만 암호화 저장, 서버에는 절대
+              저장하지 않음
+            </li>
+            <li>
+              설정/키 관리 메뉴에서 "개인키 백업" 클릭 → JSON 파일 다운로드
+            </li>
+            <li>
+              설정/키 관리 메뉴에서 "개인키 복구" 클릭 → 백업한 JSON 파일
+              업로드, 비밀번호 입력 시 복호화
+            </li>
+            <li>
+              <b>중요:</b> 개인키는 본인만 보관, 분실 시 복구 불가(서버에
+              저장하지 않음)
+            </li>
+          </ul>
+        </div>
         <div style={{ marginTop: 12 }}>
           <b>폴더 구조</b>
           <ul>
@@ -101,6 +124,18 @@ export default function IntroductionPage() {
             <li>/public: 정적 파일</li>
           </ul>
         </div>
+      </section>
+
+      <section style={{ marginBottom: 32 }}>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <FaCogs color="#3498db" /> S3 기반 파일 저장 구조
+        </h2>
+        <ul>
+          <li>업로드 파일: S3 버킷 루트(예: uuid)</li>
+          <li>미리보기 파일: S3 previews/계약ID.pdf|txt|docx</li>
+          <li>CA 인증서/개인키: S3 루트(rootCert.pem, rootPrivateKey.pem)</li>
+          <li>모든 파일 접근/삭제는 S3 API를 통해 처리</li>
+        </ul>
       </section>
 
       <section>

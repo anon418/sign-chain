@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDBForApp } from '../../../../../lib/dbConnect'
 import Contract from '../../../../../models/Contract'
-import { readFileSync, existsSync } from 'fs'
-import path from 'path'
-import forge from 'node-forge'
+import { downloadFromS3 } from '../../../../../lib/s3'
 import { ContractStatus } from '../../../../../constants/contractStatus'
 
 export async function GET(
@@ -53,15 +51,18 @@ export async function GET(
   // 확장자 추정 (pdf, txt, docx)
   const exts = ['pdf', 'txt', 'docx']
   let found = false
-  let previewPath = ''
+  let previewKey = ''
   let ext = ''
   for (const e of exts) {
-    const p = path.join(previewDir, `${contractId}.${e}`)
-    if (existsSync(p)) {
-      previewPath = p
+    const key = `previews/${contractId}.${e}`
+    try {
+      const buf = await downloadFromS3(key)
+      previewKey = key
       ext = e
       found = true
       break
+    } catch (err) {
+      // S3에 없으면 무시
     }
   }
   if (!found) {
@@ -80,7 +81,7 @@ export async function GET(
     )
   }
   try {
-    const buf = readFileSync(previewPath)
+    const buf = await downloadFromS3(previewKey)
     if (ext === 'txt' || ext === 'docx') {
       return NextResponse.json({
         preview: buf.toString('utf-8'),

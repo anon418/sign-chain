@@ -2,6 +2,7 @@
 const forge = require('node-forge')
 const fs = require('fs')
 const { pki } = forge
+const { uploadToS3 } = require('./lib/s3')
 
 const keys = pki.rsa.generateKeyPair(2048)
 const cert = pki.createCertificate()
@@ -23,11 +24,22 @@ cert.setExtensions([
   { name: 'subjectKeyIdentifier' },
 ])
 
-cert.sign(keys.privateKey, forge.md.sha256.create())
-
-fs.writeFileSync('rootCert.pem', pki.certificateToPem(cert))
-fs.writeFileSync('rootPrivateKey.pem', pki.privateKeyToPem(keys.privateKey))
-console.log('CA 인증서 및 개인키 생성 완료')
+cert.sign(
+  keys.privateKey,
+  forge.md.sha256.create()
+)(async () => {
+  await uploadToS3(
+    Buffer.from(pki.certificateToPem(cert)),
+    'rootCert.pem',
+    'application/x-pem-file'
+  )
+  await uploadToS3(
+    Buffer.from(pki.privateKeyToPem(keys.privateKey)),
+    'rootPrivateKey.pem',
+    'application/x-pem-file'
+  )
+  console.log('CA 인증서 및 개인키 S3 업로드 완료')
+})()
 
 module.exports = {
   caPrivateKey: keys.privateKey,

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDBForApp } from '../../../../../lib/dbConnect'
 import Contract from '../../../../../models/Contract'
-import { readFileSync } from 'fs'
-import path from 'path'
+import { downloadFromS3 } from '../../../../../lib/s3'
 import jwt from 'jsonwebtoken'
 import Log from '../../../../../models/Log'
 
@@ -83,10 +82,9 @@ export async function GET(
     }
 
     const filePath = contract.filePath.replace(/^[/\\]+/, '')
-    const resolvedPath = path.resolve(UPLOAD_DIR, filePath)
     let encBuffer
     try {
-      encBuffer = readFileSync(resolvedPath)
+      encBuffer = await downloadFromS3(filePath)
     } catch (e) {
       return NextResponse.json(
         { message: '파일을 읽을 수 없습니다.' },
@@ -110,7 +108,7 @@ export async function GET(
       filename: contract.title,
     })
 
-    const ext = path.extname(contract.title).toLowerCase()
+    const ext = filePath.split('.').pop()?.toLowerCase() || ''
     // Decrypt AES key using user's private key (for uploader or recipient)
     // (Assume privateKeyPem is provided in request header or body for demo)
     let decryptedAesKey, iv

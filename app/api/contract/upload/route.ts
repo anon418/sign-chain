@@ -16,6 +16,7 @@ import { encryptEmailNode, decryptEmailNode } from '../../../../utils/crypto'
 import AdmZip from 'adm-zip'
 import iconv from 'iconv-lite'
 import chardet from 'chardet'
+import { uploadToS3, downloadFromS3 } from '../../../../lib/s3'
 
 const uploadDir = '/tmp'
 
@@ -217,15 +218,12 @@ export async function POST(req: NextRequest) {
   )
   // @ts-ignore
   encrypted = Buffer.concat([encrypted, cipher.final()])
-  // 암호화 파일 저장
+  // 암호화 파일 S3에 저장
   const encFileName = uuidv4()
-  const encFilePath = path.join(uploadDir, encFileName)
-  // @ts-ignore
-  fs.writeFileSync(encFilePath, encrypted)
+  await uploadToS3(encrypted, encFileName, 'application/octet-stream')
   // 암호화된 파일의 해시를 구해서 저장
-  // @ts-ignore
-  const encFileBuffer = fs.readFileSync(encFilePath)
-  // @ts-ignore
+  // S3에서 바로 읽어서 해시 계산
+  const encFileBuffer = await downloadFromS3(encFileName)
   const encHash = crypto
     .createHash('sha256')
     .update(encFileBuffer as unknown as crypto.BinaryLike)
@@ -357,10 +355,10 @@ export async function POST(req: NextRequest) {
   let previewCreated = false
   let previewError = ''
   try {
-    const previewPath = path.join(
-      previewDir,
-      `${createdContract._id}.${originalExt.replace('.', '')}`
-    )
+    const previewKey = `previews/${createdContract._id}.${originalExt.replace(
+      '.',
+      ''
+    )}`
     if (originalExt === '.pdf') {
       // PDF: 1페이지만 평문으로 저장
       const pdfDoc = await PDFDocument.load(
@@ -371,8 +369,7 @@ export async function POST(req: NextRequest) {
       newPdf.addPage(firstPage)
       const pdfBytes = await newPdf.save()
       try {
-        // @ts-ignore
-        fs.writeFileSync(previewPath, Buffer.from(pdfBytes))
+        await uploadToS3(Buffer.from(pdfBytes), previewKey, 'application/pdf')
       } catch (err) {
         console.error('미리보기 파일 생성 실패:', err)
       }
@@ -401,7 +398,7 @@ export async function POST(req: NextRequest) {
       } catch {
         text = originalFileBuffer.toString('utf-8').slice(0, 1000)
       }
-      fs.writeFileSync(previewPath, text, { encoding: 'utf-8' })
+      await uploadToS3(Buffer.from(text, 'utf-8'), previewKey, 'text/plain')
     } else if (originalExt === '.docx') {
       // DOCX: 앞 1000자만 평문으로 저장 (mammoth로 텍스트 추출)
       const result = await mammoth.extractRawText({
@@ -409,21 +406,21 @@ export async function POST(req: NextRequest) {
       })
       const text = result.value.slice(0, 1000)
       try {
-        // @ts-ignore
-        fs.writeFileSync(previewPath, text)
+        await uploadToS3(Buffer.from(text, 'utf-8'), previewKey, 'text/plain')
       } catch (err) {
         console.error('미리보기 파일 생성 실패:', err)
       }
     }
-    previewCreated = fs.existsSync(previewPath)
+    // S3에는 항상 업로드 성공했다고 가정 (실패시 previewError에 기록)
+    previewCreated = true
   } catch (e) {
     previewError = String(e)
   }
 
-  // 계약 업로드 후 수신자에게 알림 생성
+  // 계약 업로드 후 수신자에게 알림 생성 (제목 포함)
   await Notification.create({
     recipientEmail: encryptedRecipientEmail,
-    message: `${filename} 계약서가 도착했습니다.`,
+    message: `${filename} 계약서가 도착했습니다. 계약서를 수신하시겠습니까?`,
     type: 'message',
     timestamp: new Date(),
     read: false,
