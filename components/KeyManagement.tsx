@@ -2,39 +2,31 @@ import { useState, ChangeEvent } from 'react'
 import { exportPrivateKey, importPrivateKey } from '../utils/indexedDB'
 import { getDB, STORE_NAME } from '../utils/indexedDB'
 import { decryptLocal } from '../utils/crypto'
-import { FaCheckCircle } from 'react-icons/fa'
 
 export default function KeyManagement() {
   const [backupStatus, setBackupStatus] = useState('')
   const [restoreStatus, setRestoreStatus] = useState('')
   const [password, setPassword] = useState('')
 
-  // 개인키 내보내기(백업)
   const handleExportKey = async () => {
     setBackupStatus('')
     if (!password) {
-      setBackupStatus('전자서명용 비밀번호를 입력하세요.')
+      setBackupStatus('비밀번호를 입력하세요.')
       return
     }
     const encryptedUserId =
       localStorage.getItem('userId') || localStorage.getItem('email')
-    // console.log('[KeyManagement] encryptedUserId:', encryptedUserId)
     const userId = encryptedUserId ? await decryptLocal(encryptedUserId) : ''
-    // console.log('[KeyManagement] decrypted userId:', userId)
     const db = await getDB()
     const allKeys = await db.getAllKeys(STORE_NAME)
-    // console.log('[KeyManagement] IndexedDB allKeys:', allKeys)
     if (!userId) {
-      setBackupStatus('userId가 없습니다. (로그인 상태 확인)')
+      setBackupStatus('로그인 상태를 확인하세요.')
       return
     }
     if (!allKeys.includes(userId)) {
-      setBackupStatus('IndexedDB에 해당 userId로 저장된 개인키가 없습니다.')
+      setBackupStatus('개인키가 없습니다.')
       return
     }
-    const encrypted = await db.get(STORE_NAME, userId)
-    // console.log('[KeyManagement] IndexedDB encrypted privateKey:', encrypted)
-    const { exportPrivateKey } = await import('../utils/indexedDB')
     const json = await exportPrivateKey(userId)
     const a = document.createElement('a')
     a.href = URL.createObjectURL(
@@ -42,16 +34,15 @@ export default function KeyManagement() {
     )
     a.download = `privateKey-backup-${userId}.json`
     a.click()
-    setBackupStatus('개인키 백업 파일이 다운로드되었습니다.')
+    setBackupStatus('✅ 백업 파일이 다운로드되었습니다.')
   }
 
-  // 개인키 복구(복원)
   const handleImportKey = async (e: ChangeEvent<HTMLInputElement>) => {
     setRestoreStatus('')
     const file = e.target.files?.[0]
     if (!file) return
     if (!password) {
-      setRestoreStatus('로그인 비밀번호를 입력하세요.')
+      setRestoreStatus('비밀번호를 입력하세요.')
       return
     }
     const reader = new FileReader()
@@ -64,28 +55,22 @@ export default function KeyManagement() {
         const currentUserId = encryptedUserId
           ? await decryptLocal(encryptedUserId)
           : ''
-        if (!userId) {
-          setRestoreStatus('❌ 복구 실패: 파일이 올바르지 않음')
-          return
-        }
-        if (userId !== currentUserId) {
-          setRestoreStatus(
-            '❌ 복구 실패: 이 백업 파일은 현재 계정의 개인키가 아닙니다.'
-          )
+        if (!userId || userId !== currentUserId) {
+          setRestoreStatus('❌ 다른 계정의 백업 파일입니다.')
           return
         }
         const db = await getDB()
         const existing = await db.get(STORE_NAME, userId)
         const ok = await importPrivateKey(json)
         if (existing) {
-          setRestoreStatus('✅ 개인키가 정상적으로 등록되어있습니다.')
+          setRestoreStatus('✅ 이미 등록된 개인키입니다.')
         } else if (ok) {
-          setRestoreStatus('✅ 개인키 복구 완료. IndexedDB에 저장되었습니다.')
+          setRestoreStatus('✅ 복구 완료.')
         } else {
-          setRestoreStatus('❌ 복구 실패: 파일이 올바르지 않음')
+          setRestoreStatus('❌ 복구 실패: 올바르지 않은 파일입니다.')
         }
       } catch (err) {
-        setRestoreStatus('❌ 복구 실패: 파일이 올바르지 않음')
+        setRestoreStatus('❌ 복구 실패: 올바르지 않은 파일입니다.')
       }
     }
     reader.readAsText(file)
@@ -104,16 +89,16 @@ export default function KeyManagement() {
     >
       <h2 style={{ fontSize: 20, marginBottom: 18 }}>🔑 개인키 백업/복구</h2>
       <div style={{ marginBottom: 12, color: '#555', fontSize: 14 }}>
-        내 개인키는 브라우저에 암호화되어 저장됩니다.
+        개인키는 브라우저에 암호화 저장됩니다.
         <br />
-        <b>백업:</b> 비밀번호 입력 후 백업 버튼을 누르면 파일이 다운로드됩니다.
+        <b>백업:</b> 비밀번호 입력 후 백업 버튼 클릭
         <br />
-        <b>복구:</b> 비밀번호 입력 후 백업 파일을 선택하면 복구됩니다.
+        <b>복구:</b> 백업 파일 선택
       </div>
       <div style={{ marginBottom: 8 }}>
         <input
           type="password"
-          placeholder="전자서명용 비밀번호(회원가입 시 입력)"
+          placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={{
@@ -143,12 +128,10 @@ export default function KeyManagement() {
           onMouseOver={(e) => (e.currentTarget.style.background = '#176ba0')}
           onMouseOut={(e) => (e.currentTarget.style.background = '#2086c4')}
         >
-          개인키 백업(내보내기)
+          백업
         </button>
         <label style={{ flex: 1, display: 'block' }}>
-          <span style={{ display: 'block', marginBottom: 4 }}>
-            개인키 복구(가져오기)
-          </span>
+          <span style={{ display: 'block', marginBottom: 4 }}>복구</span>
           <input
             type="file"
             accept="application/json"
@@ -157,66 +140,49 @@ export default function KeyManagement() {
           />
         </label>
       </div>
-      {restoreStatus && restoreStatus.startsWith('✅') && (
+
+      {/* ✅ 성공 메시지 */}
+      {(restoreStatus.startsWith('✅') || backupStatus.startsWith('✅')) && (
         <div
           style={{
-            maxWidth: 400,
-            margin: '40px auto',
-            padding: 20,
-            border: '1px solid #eee',
-            borderRadius: 12,
-            background: '#fafbfc',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#009e3c',
+            marginTop: 16,
+            padding: '10px 14px',
+            borderRadius: 8,
+            background: '#e7f8ee',
+            color: '#007a2f',
             fontWeight: 600,
-            fontSize: 16,
+            fontSize: 14,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
+          title={restoreStatus || backupStatus}
         >
-          <span style={{ marginRight: 8, color: '#009e3c' }}>☑️</span>
-          {restoreStatus.replace('✅ ', '')}
+          {restoreStatus || backupStatus}
         </div>
       )}
-      {backupStatus && backupStatus.includes('다운로드') && (
+
+      {/* ❌ 실패 메시지 */}
+      {(restoreStatus.startsWith('❌') || backupStatus.startsWith('❌')) && (
         <div
           style={{
-            maxWidth: 400,
-            margin: '40px auto',
-            padding: 20,
-            border: '1px solid #eee',
-            borderRadius: 12,
-            background: '#fafbfc',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'green',
-            fontWeight: 500,
-            fontSize: 15,
+            marginTop: 16,
+            padding: '10px 14px',
+            borderRadius: 8,
+            background: '#fdecea',
+            color: '#d93025',
+            fontWeight: 600,
+            fontSize: 14,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
+          title={restoreStatus || backupStatus}
         >
-          <span style={{ marginRight: 8 }}>☑️</span>개인키 백업 파일이
-          다운로드되었습니다.
+          {restoreStatus || backupStatus}
         </div>
       )}
-      {/* 실패/기타 메시지 */}
-      {(restoreStatus && !restoreStatus.startsWith('✅')) ||
-      (backupStatus && !backupStatus.includes('다운로드')) ? (
-        <div
-          style={{
-            marginTop: 8,
-            color: 'red',
-            fontWeight: 600,
-            fontSize: 16,
-          }}
-        >
-          {restoreStatus && !restoreStatus.startsWith('✅')
-            ? restoreStatus
-            : backupStatus}
-        </div>
-      ) : null}
     </div>
   )
 }
+
