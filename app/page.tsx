@@ -37,7 +37,9 @@ export default function HomePage() {
         전자계약 서비스
       </h1>
       <div style={{ fontSize: 16, color: '#222', marginBottom: 32 }}>
-        서비스 이용을 위해 로그인 또는 회원가입이 필요합니다.
+        서비스 이용을 위해 로그인 또는 회원가입이
+        <br />
+        필요합니다.
       </div>
       <div
         style={{
