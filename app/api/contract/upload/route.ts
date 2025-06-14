@@ -17,8 +17,7 @@ import AdmZip from 'adm-zip'
 import iconv from 'iconv-lite'
 import chardet from 'chardet'
 
-const uploadDir = path.join(process.cwd(), 'uploads')
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
+const uploadDir = '/tmp'
 
 const previewDir = path.join(process.cwd(), 'previews')
 if (!fs.existsSync(previewDir)) fs.mkdirSync(previewDir, { recursive: true })

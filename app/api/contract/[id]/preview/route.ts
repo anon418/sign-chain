@@ -49,7 +49,7 @@ export async function GET(
       { status: 401 }
     )
   }
-  const previewDir = path.join(process.cwd(), 'previews')
+  const previewDir = '/tmp'
   // 확장자 추정 (pdf, txt, docx)
   const exts = ['pdf', 'txt', 'docx']
   let found = false
