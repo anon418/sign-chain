@@ -45,9 +45,9 @@
 ## 개인키 백업/복구 방법
 
 - **내보내기(백업):**
-  - [설정/키 관리] 메뉴에서 "개인키 백업" 클릭 → JSON 파일 다운로드
+  - 프로필 -> 개인키 백업/복구에서 "백업" 클릭 → JSON 파일 다운로드
 - **복구(가져오기):**
-  - [설정/키 관리] 메뉴에서 "개인키 복구" 클릭 → 백업한 JSON 파일 업로드
+  - 프로필 -> 개인키 백업/복구에서 "파일 선택" → 백업한 JSON 파일 업로드
   - 비밀번호 입력 시 복호화되어 IndexedDB에 복원됨
 - **중요:** 개인키는 본인만 보관, 분실 시 복구 불가(서버에 저장하지 않음)
 
@@ -83,6 +83,7 @@ contractId: A
 ```bash
 # 1. 환경변수 설정 (.env.local)
 # 예: JWT_SECRET, AES_KEY, MONGO_URI, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, S3_BUCKET_NAME 등
+-> node genSecrets.js
 
 # 2. 의존성 설치
 npm install
