@@ -19,8 +19,11 @@
 .env.development.local
 .env.test.local
 .env.production.local
+<<<<<<< HEAD
 .next/cache/
 
+=======
+>>>>>>> c74503e6b6b5ccdab5776bf421c134594ff9ea92
 
 npm-debug.log*
 yarn-debug.log*
