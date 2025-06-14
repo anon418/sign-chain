@@ -63,7 +63,7 @@ contractId: A
 
 ```bash
 # 1. 환경변수 설정 (.env)
-# 예: JWT_SECRET, AES_KEY, MONGO_URI 등
+# 예: JWT_SECRET, AES_KEY, MONGO_URI 등 -> node genSecrets.js all
 
 # 2. 의존성 설치
 npm install
