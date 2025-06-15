@@ -128,10 +128,10 @@ export default function KeyManagement() {
           onMouseOver={(e) => (e.currentTarget.style.background = '#176ba0')}
           onMouseOut={(e) => (e.currentTarget.style.background = '#2086c4')}
         >
-          개인키 백업
+          개인키 백업(내보내기)
         </button>
         <label style={{ flex: 1, display: 'block' }}>
-          <span style={{ display: 'block', marginBottom: 4 }}> 개인키 복구</span>
+          <span style={{ display: 'block', marginBottom: 4 }}> 개인키 복구(가져오기)</span>
           <input
             type="file"
             accept="application/json"
