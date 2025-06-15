@@ -113,7 +113,10 @@ export default function ReceivedContractCard({
               new Date(contract.expirationDate) < new Date() ? 700 : 400,
           }}
         >
-          만료일: {new Date(contract.expirationDate).toLocaleDateString()}
+          만료일:{' '}
+          {new Date(contract.expirationDate).toLocaleDateString('ko-KR', {
+            timeZone: 'Asia/Seoul',
+          })}
           {new Date(contract.expirationDate) < new Date() && ' (만료됨)'}
         </span>
       </div>
