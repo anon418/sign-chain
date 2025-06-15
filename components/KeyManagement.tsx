@@ -65,7 +65,7 @@ export default function KeyManagement() {
         if (existing) {
           setRestoreStatus('✅ 이미 등록된 개인키입니다.')
         } else if (ok) {
-          setRestoreStatus('✅ 복구 완료.')
+          setRestoreStatus('✅ 개인키 복구 완료.')
         } else {
           setRestoreStatus('❌ 복구 실패: 올바르지 않은 파일입니다.')
         }
@@ -93,7 +93,7 @@ export default function KeyManagement() {
         <br />
         <b>백업:</b> 비밀번호 입력 후 백업 버튼 클릭
         <br />
-        <b>복구:</b> 백업 파일 선택
+        <b>개인키 복구:</b> 백업 파일 선택
       </div>
       <div style={{ marginBottom: 8 }}>
         <input
@@ -128,7 +128,7 @@ export default function KeyManagement() {
           onMouseOver={(e) => (e.currentTarget.style.background = '#176ba0')}
           onMouseOut={(e) => (e.currentTarget.style.background = '#2086c4')}
         >
-          백업
+          개인키 백업
         </button>
         <label style={{ flex: 1, display: 'block' }}>
           <span style={{ display: 'block', marginBottom: 4 }}>복구</span>
