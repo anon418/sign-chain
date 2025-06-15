@@ -106,6 +106,7 @@ export async function POST(req: NextRequest) {
     await Notification.create({
       recipientEmail: ensureEncryptedEmail(plainEmail),
       message: `로그인: ${new Date().toLocaleString('ko-KR', {
+        timeZone: 'Asia/Seoul',
         hour12: false,
       })}`,
       timestamp: new Date(),
