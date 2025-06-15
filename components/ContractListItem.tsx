@@ -176,7 +176,10 @@ const ContractListItem: React.FC<ContractListItemProps> = ({
           : `송신자: ${contract.senderEmail || '-'}`}
       </div>
       <div style={{ fontSize: 13, color: '#888', marginBottom: 6 }}>
-        업로드: {new Date(contract.createdAt).toLocaleString()}
+        업로드:{' '}
+        {new Date(contract.createdAt).toLocaleString('ko-KR', {
+          timeZone: 'Asia/Seoul',
+        })}
       </div>
       <div style={{ fontSize: 13, color: '#888', marginBottom: 6 }}>
         파일명: {contract.filename || contract.title}
