@@ -155,6 +155,14 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     >
                       {n.message}
                     </span>
+                    <span
+                      style={{ fontSize: 12, color: '#888', marginLeft: 12 }}
+                    >
+                      {n.timestamp &&
+                        new Date(n.timestamp).toLocaleString('ko-KR', {
+                          timeZone: 'Asia/Seoul',
+                        })}
+                    </span>
                   </li>
                 )
               }
@@ -237,6 +245,14 @@ const NotificationList: React.FC<NotificationListProps> = ({
                       <span style={{ flexShrink: 0, marginLeft: 2 }}>
                         {fileExt} {suffix}
                       </span>
+                       <span
+                        style={{ fontSize: 12, color: '#888', marginLeft: 12 }}
+                      >
+                        {n.timestamp &&
+                          new Date(n.timestamp).toLocaleString('ko-KR', {
+                            timeZone: 'Asia/Seoul',
+                          })}
+                      </span>
                     </span>
                   </li>
                 )
@@ -295,6 +311,12 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     title={n.message}
                   >
                     {n.message}
+                  </span>
+                   <span style={{ fontSize: 12, color: '#888', marginLeft: 12 }}>
+                    {n.timestamp &&
+                      new Date(n.timestamp).toLocaleString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                      })}
                   </span>
                 </li>
               )
