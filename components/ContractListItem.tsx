@@ -302,11 +302,7 @@ const ContractListItem: React.FC<ContractListItemProps> = ({
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
               <button
                 onClick={async () => {
-                  await fetch(`/api/contract/${contract._id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'rejected' }),
-                  })
+                  if (onDelete) onDelete(contract._id)
                   setShowDeleteConfirm(false)
                 }}
                 style={{
