@@ -62,8 +62,6 @@ const ContractListItem: React.FC<ContractListItemProps> = ({
   onSign,
   onDelete,
 }) => {
-  const router = useRouter()
-  const [showPreview, setShowPreview] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showPasswordBox, setShowPasswordBox] = useState(false)
   const [password, setPassword] = useState('')
@@ -293,6 +291,7 @@ const ContractListItem: React.FC<ContractListItemProps> = ({
               border: '2px solid #1976d2',
               letterSpacing: 0.5,
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div style={{ marginBottom: 18, fontSize: 20, fontWeight: 700 }}>
               계약서 삭제
@@ -453,3 +452,4 @@ const ContractListItem: React.FC<ContractListItemProps> = ({
 }
 
 export default ContractListItem
+
