@@ -112,7 +112,7 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     }}
                     style={{
                       background: n.read ? '#f7f7f7' : '#e3f0ff',
-                      color: n.read ? '#888' : '#1976d2',
+                      color: '#1976d2',
                       fontWeight: n.read ? 400 : 600,
                       borderLeft: n.read
                         ? '4px solid #ccc'
@@ -155,14 +155,6 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     >
                       {n.message}
                     </span>
-                    <span
-                      style={{ fontSize: 12, color: '#888', marginLeft: 12 }}
-                    >
-                      {n.timestamp &&
-                        new Date(n.timestamp).toLocaleString('ko-KR', {
-                          timeZone: 'Asia/Seoul',
-                        })}
-                    </span>
                   </li>
                 )
               }
@@ -177,12 +169,13 @@ const NotificationList: React.FC<NotificationListProps> = ({
                 const fileTitle = match ? match[1] : n.message
                 const fileExt = match && match[2] ? match[2] : ''
                 const suffix = '계약서가 도착했습니다.'
-                const maxTitleLength = 14
+                const maxTitleLength = 10
                 let displayTitle = fileTitle
-                if (fileTitle.length > maxTitleLength) {
+                let showEllipsis = false
+                if (fileTitle.length >= maxTitleLength) {
                   displayTitle = fileTitle.slice(0, maxTitleLength) + '...'
+                  showEllipsis = true
                 }
-                // 수신 알림은 클릭 시 삭제하지 않고, onNotificationClick만 호출
                 return (
                   <li
                     key={n.id}
@@ -192,7 +185,7 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     }}
                     style={{
                       background: n.read ? '#f7f7f7' : '#e3f0ff',
-                      color: n.read ? '#888' : '#1976d2',
+                      color: '#1976d2',
                       fontWeight: n.read ? 400 : 600,
                       borderLeft: n.read
                         ? '4px solid #ccc'
@@ -231,10 +224,10 @@ const NotificationList: React.FC<NotificationListProps> = ({
                     >
                       <span
                         style={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          overflow: showEllipsis ? 'hidden' : 'visible',
+                          textOverflow: showEllipsis ? 'ellipsis' : 'clip',
                           whiteSpace: 'nowrap',
-                          maxWidth: 180,
+                          maxWidth: showEllipsis ? 180 : 'none',
                           display: 'inline-block',
                           verticalAlign: 'middle',
                         }}
@@ -244,14 +237,6 @@ const NotificationList: React.FC<NotificationListProps> = ({
                       </span>
                       <span style={{ flexShrink: 0, marginLeft: 2 }}>
                         {fileExt} {suffix}
-                      </span>
-                       <span
-                        style={{ fontSize: 12, color: '#888', marginLeft: 12 }}
-                      >
-                        {n.timestamp &&
-                          new Date(n.timestamp).toLocaleString('ko-KR', {
-                            timeZone: 'Asia/Seoul',
-                          })}
                       </span>
                     </span>
                   </li>
@@ -312,12 +297,6 @@ const NotificationList: React.FC<NotificationListProps> = ({
                   >
                     {n.message}
                   </span>
-                   <span style={{ fontSize: 12, color: '#888', marginLeft: 12 }}>
-                    {n.timestamp &&
-                      new Date(n.timestamp).toLocaleString('ko-KR', {
-                        timeZone: 'Asia/Seoul',
-                      })}
-                  </span>
                 </li>
               )
             })}
@@ -328,3 +307,4 @@ const NotificationList: React.FC<NotificationListProps> = ({
 }
 
 export default NotificationList
+
