@@ -245,9 +245,11 @@ function OtpVerifyPageInner() {
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: 22, marginBottom: 16 }}>🔒</div>
+           <div style={{ fontSize: 22, marginBottom: 16 }}>🔒</div>
             <div style={{ fontSize: 17, marginBottom: 24 }}>
-              프로필에서 개인키 백업 후 서비스를 이용해주세요.
+              {isRegister
+                ? '프로필에서 개인키 백업 후 서비스를 이용해주세요.'
+                : '프로필에서 개인키 복구 후 서비스를 이용해주세요.'}
             </div>
             <button
               style={{
