@@ -164,7 +164,9 @@ export default function LogChainViewer({ contractId }: { contractId: string }) {
                   <strong>타입:</strong> {log.encapsulation}
                   {log.createdAt && (
                     <span style={{ marginLeft: 10, color: '#888' }}>
-                      {new Date(log.createdAt).toLocaleString()}
+                      {new Date(log.createdAt).toLocaleString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                      })}
                     </span>
                   )}
                 </div>
