@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { FaTrashAlt, FaSearch } from 'react-icons/fa'
 import dynamic from 'next/dynamic'
 import ContractSignFlow from './ContractSignFlow'
 import ContractListItem from './ContractListItem'
@@ -40,48 +39,25 @@ export default function ContractList({
   const [selected, setSelected] = useState<Contract | null>(null)
   const [boxType, setBoxType] = useState<'sent' | 'received'>('sent')
   const [signTarget, setSignTarget] = useState<Contract | null>(null)
-  const [showDeleteBox, setShowDeleteBox] = useState(false)
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
-
-  const sent = contracts.filter(
-    (c) => c.uploaderId === userId && c.status !== 'expired'
-  )
-  const received = contracts.filter(
-    (c) =>
-      c.recipientId === userId &&
-      c.status !== 'rejected' &&
-      c.status !== 'expired'
-  )
+  const [localContracts, setLocalContracts] = useState(contracts)
+  const [isDeletingIds, setIsDeletingIds] = useState<string[]>([])
 
   React.useEffect(() => {
-    if (!refreshContracts) return
-    const interval = setInterval(() => {
-      refreshContracts()
-    }, 10000)
-    return () => clearInterval(interval)
-  }, [refreshContracts])
+    setLocalContracts(contracts)
+  }, [contracts])
 
-  const handleDeleteClick = (id: string) => {
-    setPendingDeleteId(id)
-    setShowDeleteBox(true)
-  }
-
-  const handleDeleteConfirm = async () => {
-    if (pendingDeleteId) {
-      await fetch(`/api/contract/${pendingDeleteId}`, {
+  const handleDelete = async (id: string) => {
+    setIsDeletingIds((prev) => [...prev, id])
+    setTimeout(async () => {
+      await fetch('/api/contract/receive', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deletedBy: userId }),
+        body: JSON.stringify({ contractId: id, deletedBy: userId }),
       })
+      setLocalContracts((prev) => prev.filter((c) => c._id !== id))
+      setIsDeletingIds((prev) => prev.filter((delId) => delId !== id))
       if (refreshContracts) refreshContracts()
-    }
-    setShowDeleteBox(false)
-    setPendingDeleteId(null)
-  }
-
-  const handleDeleteCancel = () => {
-    setShowDeleteBox(false)
-    setPendingDeleteId(null)
+    }, 300)
   }
 
   return (
@@ -126,7 +102,9 @@ export default function ContractList({
           }}
         >
           {boxType === 'sent' ? (
-            sent.length === 0 ? (
+            localContracts.filter(
+              (c) => c.uploaderId === userId && c.status !== 'expired'
+            ).length === 0 ? (
               <li
                 style={{
                   paddingLeft: 20,
@@ -140,17 +118,41 @@ export default function ContractList({
                 보낸 계약서가 없습니다.
               </li>
             ) : (
-              sent.map((c) => (
-                <ContractListItem
-                  key={c._id}
-                  contract={c}
-                  type="sent"
-                  onPreview={() => setSelected(c)}
-                  onDelete={handleDeleteClick}
-                />
-              ))
+              localContracts
+                .filter(
+                  (c) => c.uploaderId === userId && c.status !== 'expired'
+                )
+                .map((c) => (
+                  <li
+                    key={c._id}
+                    style={{
+                      opacity: isDeletingIds.includes(c._id) ? 0 : 1,
+                      height: isDeletingIds.includes(c._id) ? 0 : undefined,
+                      transition: 'opacity 0.3s, height 0.3s',
+                      overflow: 'hidden',
+                      paddingLeft: 20,
+                      paddingTop: 24,
+                      paddingBottom: 24,
+                      color: '#888',
+                      fontSize: 16,
+                      textAlign: 'center',
+                    }}
+                  >
+                    <ContractListItem
+                      contract={c}
+                      type="sent"
+                      onPreview={() => setSelected(c)}
+                      onDelete={handleDelete}
+                    />
+                  </li>
+                ))
             )
-          ) : received.length === 0 ? (
+          ) : localContracts.filter(
+              (c) =>
+                c.recipientId === userId &&
+                c.status !== 'rejected' &&
+                c.status !== 'expired'
+            ).length === 0 ? (
             <li
               style={{
                 paddingLeft: 20,
@@ -164,16 +166,38 @@ export default function ContractList({
               받은 계약서가 없습니다.
             </li>
           ) : (
-            received.map((c) => (
-              <ContractListItem
-                key={c._id}
-                contract={c}
-                type="received"
-                onPreview={() => setSelected(c)}
-                onSign={() => setSignTarget(c)}
-                onDelete={handleDeleteClick}
-              />
-            ))
+            localContracts
+              .filter(
+                (c) =>
+                  c.recipientId === userId &&
+                  c.status !== 'rejected' &&
+                  c.status !== 'expired'
+              )
+              .map((c) => (
+                <li
+                  key={c._id}
+                  style={{
+                    opacity: isDeletingIds.includes(c._id) ? 0 : 1,
+                    height: isDeletingIds.includes(c._id) ? 0 : undefined,
+                    transition: 'opacity 0.3s, height 0.3s',
+                    overflow: 'hidden',
+                    paddingLeft: 20,
+                    paddingTop: 24,
+                    paddingBottom: 24,
+                    color: '#888',
+                    fontSize: 16,
+                    textAlign: 'center',
+                  }}
+                >
+                  <ContractListItem
+                    contract={c}
+                    type="received"
+                    onPreview={() => setSelected(c)}
+                    onSign={() => setSignTarget(c)}
+                    onDelete={handleDelete}
+                  />
+                </li>
+              ))
           )}
         </ul>
       </div>
@@ -228,70 +252,7 @@ export default function ContractList({
           onClose={() => setSignTarget(null)}
         />
       )}
-      {/* 삭제 확인 모달 */}
-      {showDeleteBox && (
-        <div
-          style={{
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.35)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 12,
-              padding: 32,
-              minWidth: 320,
-              boxShadow: '0 4px 24px #0002',
-              textAlign: 'center',
-              position: 'relative',
-            }}
-          >
-            <div style={{ fontWeight: 600, marginBottom: 16 }}>
-              정말 삭제하시겠습니까?
-            </div>
-            <button
-              style={{
-                background: '#1976d2',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 6,
-                padding: '8px 24px',
-                fontWeight: 600,
-                fontSize: 16,
-                cursor: 'pointer',
-                marginRight: 8,
-              }}
-              onClick={handleDeleteConfirm}
-            >
-              확인
-            </button>
-            <button
-              style={{
-                background: '#eee',
-                color: '#333',
-                border: 'none',
-                borderRadius: 6,
-                padding: '8px 24px',
-                fontWeight: 500,
-                fontSize: 16,
-                cursor: 'pointer',
-              }}
-              onClick={handleDeleteCancel}
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
+
