@@ -93,7 +93,7 @@ export default function KeyManagement() {
         <br />
         <b>백업:</b> 비밀번호 입력 후 백업 버튼 클릭
         <br />
-        <b>개인키 복구:</b> 백업 파일 선택
+        <b>복구:</b> 비밀번호 입력 후 백업 파일 선택
       </div>
       <div style={{ marginBottom: 8 }}>
         <input
@@ -131,7 +131,7 @@ export default function KeyManagement() {
           개인키 백업
         </button>
         <label style={{ flex: 1, display: 'block' }}>
-          <span style={{ display: 'block', marginBottom: 4 }}>복구</span>
+          <span style={{ display: 'block', marginBottom: 4 }}> 개인키 복구</span>
           <input
             type="file"
             accept="application/json"
