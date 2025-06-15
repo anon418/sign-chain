@@ -88,9 +88,9 @@ export default function IntroductionPage() {
           <li>회원탈퇴 시 개인키, 토큰, IndexedDB 완전 삭제</li>
           <li>Refresh Token은 httpOnly 쿠키, jti로 재사용 방지</li>
           <li>쿠키는 SameSite=Strict, HttpOnly, Secure 속성 적용</li>
-          <li>환경변수는 .env 관리, NEXT_PUBLIC_ 접두사로 프론트 접근</li>
+          <li>환경변수는 .env 관리, NEXT_PUBLIC_ 프론트 접근</li>
           <li>
-            <b>모든 파일(원본, 미리보기, 인증서 등)은 AWS S3에 저장/관리</b>
+            <b>모든 파일(원본, 미리보기 등)은 AWS S3에 저장/관리</b>
           </li>
         </ul>
         <div style={{ marginTop: 12 }}>
@@ -133,7 +133,6 @@ export default function IntroductionPage() {
         <ul>
           <li>업로드 파일: S3 버킷 루트(예: uuid)</li>
           <li>미리보기 파일: S3 previews/계약ID.pdf|txt|docx</li>
-          <li>CA 인증서/개인키: S3 루트(rootCert.pem, rootPrivateKey.pem)</li>
           <li>모든 파일 접근/삭제는 S3 API를 통해 처리</li>
         </ul>
       </section>
