@@ -123,28 +123,13 @@ export default function ContractList({
                   (c) => c.uploaderId === userId && c.status !== 'expired'
                 )
                 .map((c) => (
-                  <li
+                  <ContractListItem
                     key={c._id}
-                    style={{
-                      opacity: isDeletingIds.includes(c._id) ? 0 : 1,
-                      height: isDeletingIds.includes(c._id) ? 0 : undefined,
-                      transition: 'opacity 0.3s, height 0.3s',
-                      overflow: 'hidden',
-                      paddingLeft: 20,
-                      paddingTop: 24,
-                      paddingBottom: 24,
-                      color: '#888',
-                      fontSize: 16,
-                      textAlign: 'center',
-                    }}
-                  >
-                    <ContractListItem
-                      contract={c}
-                      type="sent"
-                      onPreview={() => setSelected(c)}
-                      onDelete={handleDelete}
-                    />
-                  </li>
+                    contract={c}
+                    type="sent"
+                    onPreview={() => setSelected(c)}
+                    onDelete={handleDelete}
+                  />
                 ))
             )
           ) : localContracts.filter(
@@ -174,29 +159,14 @@ export default function ContractList({
                   c.status !== 'expired'
               )
               .map((c) => (
-                <li
+                <ContractListItem
                   key={c._id}
-                  style={{
-                    opacity: isDeletingIds.includes(c._id) ? 0 : 1,
-                    height: isDeletingIds.includes(c._id) ? 0 : undefined,
-                    transition: 'opacity 0.3s, height 0.3s',
-                    overflow: 'hidden',
-                    paddingLeft: 20,
-                    paddingTop: 24,
-                    paddingBottom: 24,
-                    color: '#888',
-                    fontSize: 16,
-                    textAlign: 'center',
-                  }}
-                >
-                  <ContractListItem
-                    contract={c}
-                    type="received"
-                    onPreview={() => setSelected(c)}
-                    onSign={() => setSignTarget(c)}
-                    onDelete={handleDelete}
-                  />
-                </li>
+                  contract={c}
+                  type="received"
+                  onPreview={() => setSelected(c)}
+                  onSign={() => setSignTarget(c)}
+                  onDelete={handleDelete}
+                />
               ))
           )}
         </ul>
@@ -255,4 +225,3 @@ export default function ContractList({
     </div>
   )
 }
-
