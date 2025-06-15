@@ -194,6 +194,7 @@ export async function POST(req: NextRequest) {
             decryptEmailNode(newUser.email).trim().toLowerCase()
           ),
           message: `회원가입: ${new Date().toLocaleString('ko-KR', {
+            timeZone: 'Asia/Seoul',
             hour12: false,
           })}`,
           timestamp: new Date(),
