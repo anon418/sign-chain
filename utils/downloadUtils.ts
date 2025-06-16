@@ -1,3 +1,6 @@
+ // base64 인코딩된 파일 데이터를 실제 파일로 변환해 브라우저에서 다운로드를 트리거하는 함수
+ // (계약서 등 파일 다운로드 기능에서 사용)
+
 export function triggerDownload(base64String: string, filename: string) {
   try {
     // base64 문자열을 바이너리 문자열로 디코드
