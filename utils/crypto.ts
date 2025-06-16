@@ -1,5 +1,3 @@
-// 비밀번호와 솔트를 이용해 PBKDF2로 AES-GCM 256비트 암호화 키를 파생
-// (계약서 저장/다운로드, 개인키 암호화/복호화 등에서 사용)
 export async function deriveKey(
   password: string,
   salt: string
@@ -23,12 +21,9 @@ export async function deriveKey(
     { name: 'AES-GCM', length: 256 },
     false,
     ['encrypt', 'decrypt']
-  )v(
-    EMAIL_ALGO,
+  )
 }
 
-// AES-GCM 방식으로 문자열을 암호화 (iv와 암호문 반환)
-// 계약서 업로드 시 파일, 개인키, 이메일 등 다양한 데이터 암호화에 사용
 export async function aesEncrypt(
   plain: string,
   key: CryptoKey
@@ -48,8 +43,48 @@ export async function aesEncrypt(
   }
 }
 
-// Node.js 환경에서 암호화된 이메일을 복호화
-// 서버에서 이메일 주소를 안전하게 복호화할 때 사용 (DB → 화면 등)
+export async function aesDecrypt(
+  encrypted: { iv: string; data: string },
+  key: CryptoKey
+): Promise<string> {
+  if (!window.crypto?.subtle)
+    throw new Error('이 브라우저는 WebCrypto를 지원하지 않습니다.')
+  const dec = new TextDecoder()
+  const iv = Uint8Array.from(atob(encrypted.iv), (c) => c.charCodeAt(0))
+  const data = Uint8Array.from(atob(encrypted.data), (c) => c.charCodeAt(0))
+  const decrypted = await window.crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    data
+  )
+  return dec.decode(decrypted)
+}
+
+// Node.js (server) email encryption/decryption for API routes
+let nodeCrypto: typeof import('crypto') | undefined = undefined
+if (typeof window === 'undefined') {
+  nodeCrypto = require('crypto')
+}
+
+const EMAIL_ALGO = 'aes-256-cbc'
+const EMAIL_IV_LENGTH = 16
+
+export function encryptEmailNode(email: string): string {
+  if (!nodeCrypto) throw new Error('Node.js crypto not available')
+  const key = Buffer.from(process.env.EMAIL_AES_KEY as string, 'hex')
+  const iv = (nodeCrypto as typeof import('crypto')).randomBytes(
+    EMAIL_IV_LENGTH
+  )
+  const cipher = (nodeCrypto as typeof import('crypto')).createCipheriv(
+    EMAIL_ALGO,
+    key,
+    iv
+  )
+  let encrypted = cipher.update(email, 'utf8', 'hex')
+  encrypted += cipher.final('hex')
+  return iv.toString('hex') + ':' + encrypted
+}
+
 export function decryptEmailNode(encrypted: string): string {
   if (!nodeCrypto) throw new Error('Node.js crypto not available')
   const key = Buffer.from(process.env.EMAIL_AES_KEY as string, 'hex')
@@ -61,7 +96,24 @@ export function decryptEmailNode(encrypted: string): string {
     iv
   )
   let decrypted = decipher.update(encryptedData, 'hex', 'utf8')
-  decrypted += decipher.용
+  decrypted += decipher.final('utf8')
+  return decrypted
+}
+
+// 로컬스토리지용 간단 암호화 (앱 고정 키)
+const LOCAL_KEY = process.env.NEXT_PUBLIC_LOCAL_KEY || '' // .env에서 관리
+const LOCAL_SALT = process.env.NEXT_PUBLIC_LOCAL_SALT || '' // .env에서 관리
+
+export async function getLocalStorageKey() {
+  return deriveKey(LOCAL_KEY, LOCAL_SALT)
+}
+
+export async function encryptLocal(plain: string): Promise<string> {
+  const key = await getLocalStorageKey()
+  const { iv, data } = await aesEncrypt(plain, key)
+  return JSON.stringify({ iv, data })
+}
+
 export async function decryptLocal(cipher: string): Promise<string> {
   try {
     console.log('[decryptLocal] 입력값:', cipher)
@@ -77,3 +129,4 @@ export async function decryptLocal(cipher: string): Promise<string> {
     throw e
   }
 }
+
