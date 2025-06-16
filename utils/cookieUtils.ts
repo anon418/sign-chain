@@ -1,8 +1,6 @@
 // 쿠키 옵션 및 문자열 생성 헬퍼 (Vercel/로컬 모두 안전)
 
-/**
- * 환경에 따라 secure, sameSite 등 옵션을 자동으로 맞춰주는 쿠키 옵션 생성기
- */
+// 환경에 따라 secure, sameSite 등 옵션을 자동으로 맞춰주는 쿠키 옵션 생성기
 export function getCookieOptions({ maxAge }: { maxAge?: number } = {}) {
   const isProduction = process.env.NODE_ENV === 'production'
   return {
@@ -14,9 +12,7 @@ export function getCookieOptions({ maxAge }: { maxAge?: number } = {}) {
   } as const
 }
 
-/**
- * Set-Cookie 헤더 문자열을 안전하게 만들어주는 함수
- */
+// Set-Cookie 헤더 문자열을 안전하게 만들어주는 함수
 export function makeSetCookieString(
   name: string,
   value: string,
