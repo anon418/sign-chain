@@ -156,6 +156,7 @@ export default function IntroductionPage() {
           <li>송/수신함: 미리보기, 다운로드(송신자만), 삭제(soft delete)</li>
         </ol>
       </section>
+      <li>https://github.com/anon418/sign-chain</li>
     </div>
   )
 }
