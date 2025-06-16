@@ -97,19 +97,16 @@ export default function IntroductionPage() {
           <b>개인키 백업/복구</b>
           <ul>
             <li>
-              개인키는 브라우저 IndexedDB에만 암호화 저장, 서버에는 절대
-              저장하지 않음
+              개인키는 브라우저 IndexedDB에만 암호화 저장, 서버에는 절대 저장하지 않음
             </li>
             <li>
               설정/키 관리 메뉴에서 "개인키 백업" 클릭 → JSON 파일 다운로드
             </li>
             <li>
-              설정/키 관리 메뉴에서 "개인키 복구" 클릭 → 백업한 JSON 파일
-              업로드, 비밀번호 입력 시 복호화
+              설정/키 관리 메뉴에서 "개인키 복구" 클릭 → 백업한 JSON 파일 업로드, 비밀번호 입력 시 복호화
             </li>
             <li>
-              <b>중요:</b> 개인키는 본인만 보관, 분실 시 복구 불가(서버에
-              저장하지 않음)
+              <b>중요:</b> 개인키는 본인만 보관, 분실 시 복구 불가(서버에 저장하지 않음)
             </li>
           </ul>
         </div>
@@ -156,11 +153,17 @@ export default function IntroductionPage() {
           <li>송/수신함: 미리보기, 다운로드(송신자만), 삭제(soft delete)</li>
         </ol>
       </section>
-      <li>
-  <a href="https://github.com/anon418/sign-chain" target="_blank" rel="noopener noreferrer">
-    https://github.com/anon418/sign-chain
-  </a>
-</li>
+
+      <div style={{ marginTop: 24 }}>
+        <a
+          href="https://github.com/anon418/sign-chain"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "#003cff", fontWeight: "bold" }}
+        >
+          https://github.com/anon418/sign-chain
+        </a>
+      </div>
     </div>
   )
 }
