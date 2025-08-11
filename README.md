@@ -6,7 +6,7 @@
 
 - **회원가입/OTP/X.509 인증서 발급**
 - **전자서명, QR 본인인증, 손글씨 입력 서명**
-- **계약서 업로드, 미리보기, 다운로드, 만료/삭제 처리 (모든 파일은 S3에 저장)**
+- **계약서 업로드, 미리보기, 다운로드, 만료/삭제 처리 (파일은 S3에 저장)**
 - **실시간 알림 (10초 폴링), 해시체인 로그 기록**
 - **민감 정보 암호화 저장 / 보안 중심 UX**
 
@@ -40,7 +40,7 @@
 - 업로드 파일: S3 버킷 루트(예: `uuid`)
 - 미리보기 파일: S3 `previews/계약ID.pdf|txt|docx`
 - CA 인증서/개인키: S3 루트(`rootCert.pem`, `rootPrivateKey.pem`)
-- 모든 파일 접근/삭제는 S3 API를 통해 처리
+- 파일 접근/삭제는 S3 API를 통해 처리
 
 ## 개인키 백업/복구 방법
 
@@ -75,7 +75,7 @@ contractId: A
 - **Frontend**: Next.js, React, TypeScript, node-forge, IndexedDB
 - **Backend**: Node.js, MongoDB, Mongoose
 - **Security**: AES-GCM, PBKDF2, RSA, X.509, Google OTP, bcrypt
-- **파일저장**: AWS S3 (Vercel/서버리스 환경 완벽 지원)
+- **파일저장**: AWS S3 (Vercel/서버리스 환경 지원)
 - **기타**: JWT, Refresh Token, 해시체인 로그, Vercel 배포
 
 ## ⚙️ 실행 방법
